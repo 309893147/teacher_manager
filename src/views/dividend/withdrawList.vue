@@ -2,18 +2,33 @@
   <div>
     <List :header="tableHeader" @page="getBanner" :data="tableData" :page="pageInfo">
       <div slot="filters">
-        <el-input v-model="filter.name" placeholder="订单编号" style="width:auto" clearable></el-input>
-
+        <el-input v-model="filter.userName" placeholder="用户名" style="width:auto" clearable></el-input>
+        <el-select v-model="filter.type">
+          <el-option label="全部状态" :value="null"></el-option>
+          <el-option label="未打款" :value=0></el-option>
+          <el-option label="已打款" :value=1></el-option>
+        </el-select>
         <el-button type="primary" @click="getBanner(1,10)">筛选</el-button>
       </div>
       <el-table-column slot="actions" label="操作" width="300">
         <template slot-scope="scope">
-          <router-link :to="'/project/projectDetailList?id='+scope.row.id">
+          <!-- <router-link :to="'/project/projectDetailList?id='+scope.row.id">
             <el-button>查看详情</el-button>
-          </router-link>
+          </router-link>-->
+          <el-button @click="editType(scope.row)" type="primary">编辑</el-button>
         </template>
       </el-table-column>
     </List>
+
+    <el-dialog title="提现状态" :visible.sync="dialogVisible" width="30%">
+      <el-select v-model="currentItem.types">
+        <el-option label="已打款" :value=1 ></el-option>
+      </el-select>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="saveEdit">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -27,24 +42,41 @@ export default {
     return {
       listData: [],
       pageInfo: {},
+      dialogVisible: false,
       showDividend: false,
       currentItem: {},
       filter: {
-        name: null
+        userName: null,
+        type: null
       }
     };
   },
-  created() {},
+  created() {
+    this.getBanner();
+  },
   watch: {},
   methods: {
-    openDividendMode(item) {
-      this.currentItem = item;
-      console.log(item);
-
-      this.showDividend = true;
+    editType(item) {
+      this.currentItem = JSON.parse(JSON.stringify(item));
+      this.dialogVisible = true;
     },
-    cloneDividendMode() {
-      this.showDividend = false;
+cloneInput() {
+      this.currentItem = "";
+      this.dialogVisible = false;
+    },
+    saveEdit() {
+      let vm = this;
+
+      this.ax
+        .post("dividend/update/withdraw", {
+          withdrawId: vm.currentItem.id
+        })
+        .then(it => {
+                  this.cloneInput();
+          vm.success("提现成功");
+          this.getBanner();
+        })
+        .catch(vm.OnError);
     },
 
     getBanner(page, size) {
@@ -58,8 +90,6 @@ export default {
           }
         })
         .then(it => {
-          console.log(it);
-          
           vm.listData = it.dataList;
           delete it.dataList;
           vm.pageInfo = it.page;
@@ -68,39 +98,45 @@ export default {
   },
   computed: {
     tableData() {
+      let types = {
+        0: "未打款",
+        1: "已打款"
+      };
       return this.listData.map(it => {
+        it.type = types[it.type];
         return it;
       });
     },
     tableHeader() {
       return [
         {
-          key: "userName",
+          key: "userDto.userName",
           name: "用户名"
         },
         {
-          key: "unitPrice",
-          name: "单价"
+          key: "userDto.email",
+          name: "邮箱"
         },
         {
-          key: "numberCopies",
-          name: "份数"
+          key: "bankCardDto.bankCardNumber",
+          name: "银行卡号"
         },
         {
-          key: "orderNumber",
-          name: "订单号"
+          key: "bankCardDto.bankCardName",
+          name: "银行"
+        },
+
+        {
+          key: "money",
+          name: "提现金额"
         },
         {
-          key: "orderDate",
-          name: "订单时间"
-        },
-        {
-          key: "countMoney",
-          name: "收益金额"
-        },
-        {
-          key: "createTime",
+          key: "createDate",
           name: "创建时间"
+        },
+        {
+          key: "type",
+          name: "打款状态"
         }
       ];
     }

@@ -17,7 +17,7 @@
         <el-table-column type="selection" width="55" v-if="showSelect"></el-table-column>
          <el-table-column type="index"></el-table-column>
             <slot name="before"></slot>
-             <el-table-column  v-for="item in header" :prop="item.key" :label="item.name" :key="item.key" v-if="!item.hide"></el-table-column>
+             <el-table-column  v-for="item in header" :prop="item.key" :label="item.name" :key="item.key" v-if="!item.hide" ></el-table-column>
              <slot name="actions">
              <el-table-column label="操作" v-if="!disableAction">
                <template slot-scope="scope">
@@ -42,7 +42,7 @@
         <el-pagination
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
-            :current-page="page.currentPage"
+            :current-page.sync="page.currentPage"
             :page-sizes="[10, 20, 30, 40]"
             :page-size="page.pageSize"
             layout="total, sizes, prev, pager, next, jumper"
@@ -134,10 +134,10 @@ export default {
       this.$emit("delete", row.id, index);
     },
     handleSizeChange(size) {
-      this.$emit("page", this.page.pageSize, size);
+      this.$emit("page", this.page.currentPage, size);
     },
     handleCurrentChange(page) {
-      this.$emit("page", page, 10);
+      this.$emit("page", this.page.currentPage, 10);
     },
     deleteFaild(index) {
       this.data[index].loading = false;

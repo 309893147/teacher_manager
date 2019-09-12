@@ -128,7 +128,7 @@ export default {
     saveRecommendStroy() {
       let vm = this;
       //设置推荐故事 name
-      vm.activityItem.name = "popular_events";
+      vm.activityItem.name = "upcoming_events";
       if (!vm.activityItem.id) {
         vm.ax
           .post("/webpage/save", vm.activityItem)
@@ -164,7 +164,7 @@ export default {
           params: {
             "page.currentPage": page,
             "page.pageSize": size,
-            name: "popular_events",
+            name: "upcoming_events",
             ...this.filter
           }
         })

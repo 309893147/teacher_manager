@@ -2,16 +2,11 @@
   <div>
     <List :header="tableHeader" @page="getBanner" :data="tableData" :page="pageInfo">
       <div slot="filters">
-        <el-input v-model="filter.name" placeholder="订单编号" style="width:auto" clearable></el-input>
+        <el-input v-model="filter.userName" placeholder="用户名" style="width:auto" clearable></el-input>
 
         <el-button type="primary" @click="getBanner(1,10)">筛选</el-button>
       </div>
-      <el-table-column slot="actions" label="操作" width="300">
-        <template slot-scope="scope">
-          <router-link :to="'/project/projectDetailList?id='+scope.row.id">
-            <el-button>查看详情</el-button>
-          </router-link>
-        </template>
+      <el-table-column slot="actions" label="操作" width="1">
       </el-table-column>
     </List>
   </div>
@@ -30,7 +25,7 @@ export default {
       showDividend: false,
       currentItem: {},
       filter: {
-        name: null
+        userName: null
       }
     };
   },
@@ -85,7 +80,7 @@ export default {
           name: "份数"
         },
         {
-          key: "orderNumber",
+          key: "orderId",
           name: "订单号"
         },
         {
@@ -97,7 +92,7 @@ export default {
           name: "收益金额"
         },
         {
-          key: "createTime",
+          key: "createDate",
           name: "创建时间"
         }
       ];

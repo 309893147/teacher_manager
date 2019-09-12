@@ -1,7 +1,16 @@
 <template>
   <div>
     <List :header="tableHeader" :data="tableData" @page="getBanner" :page="pageInfo">
-      <div slot="top-actions">
+      <div slot="top-actions" style="display: flex;align-items: center;justify-content: flex-end">
+        <div style="display: flex;align-items: center;margin-right: 20px">
+          <p>是否显示在前台页面展示：</p>
+          <el-switch
+              @change="openOrClose"
+              v-model="infoStatusType"
+              active-color="#13ce66"
+              inactive-color="#ff4949">
+          </el-switch>
+        </div>
         <el-button type="primary" @click="addDialog=true">添加</el-button>
       </div>
 
@@ -84,7 +93,7 @@ export default {
     List,
     ImageInput
   },
-  props: ["publicProjectId"],
+  props: ["publicProjectId",'infoStatus','infoId','infoList'],
 
   data() {
     return {
@@ -99,10 +108,17 @@ export default {
       deleteList: "",
       fileAddress: '', // 文件地址
       openPdfMode: false,
+
+      infoStatusType: '',
     };
   },
   created() {
     this.getBanner();
+    if(!this.infoStatus){
+      this.infoStatusType = true
+    } else {
+      this.infoStatusType = false
+    }
   },
   watch: {
     addDialog(val) {
@@ -119,6 +135,31 @@ export default {
     }
   },
   methods: {
+    openOrClose(){
+      if (!this.currentItem.id) {
+        let statusData ={
+          pubProjectId: this.publicProjectId,
+          title:"信息披露",
+          type:5,
+          status: this.infoStatusType?0:1,
+          id: this.infoId,
+        }
+        this.ax.post('/publicproject/save/pubprojectshow',statusData)
+            .then(res =>{
+              this.$message.success('修改成功')
+            })
+      }else {
+        let statusData ={
+          status: this.infoStatusType?0:1,
+          id: this.infoId,
+        }
+        this.ax.post('/publicproject/update/pubprojectshow',statusData)
+            .then(res =>{
+              this.$message.success('修改成功')
+            })
+      }
+
+    },
     // 打开pdf
     openPdf(val){
       if(val){
@@ -180,7 +221,6 @@ export default {
     addFile() {
       let vm = this;
       //   let api = this.publicProjectId;
-      console.log(vm.currentItem);
       
       if (!vm.currentItem.id) {
         vm.ax
@@ -241,7 +281,7 @@ export default {
           vm.pageInfo = it.page;
         })
         .catch(err => {
-          console.log(err); // 这里catch到错误timeout
+          // console.log(err); // 这里catch到错误timeout
         });
     }
   },
@@ -251,7 +291,6 @@ export default {
         0 : "可见",
         1 : "不可见"
       };
-      console.log(this.listData);
 
       // let file = this.$GetFileName(file)
       

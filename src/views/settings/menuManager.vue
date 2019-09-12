@@ -1,5 +1,5 @@
 <template>
-  <div class="menuManager">
+  <div class="menuManager" v-loading="loading">
     <div class="menu_list">
       <div class="title">
         <div class="search">
@@ -7,24 +7,67 @@
           <el-input v-model="searchInput"></el-input>
         </div>
         <div class="setting_btn">
-          <p class="search_btn">搜索</p>
-          <p class="refresh_btn">刷新</p>
-          <p class="add_btn">添加</p>
+          <el-button @click="refresh">刷新</el-button>
+          <el-button @click="addMenu">添加</el-button>
+          <el-button @click="removeMenu" :disabled="checkList == ''">删除</el-button>
         </div>
       </div>
 
       <el-tree
           :data="menuList"
           show-checkbox
-          :load="loadNode"
-          lazy
+          @node-click="loadNode"
           :props="defaultProps"
-          @check-change="handleNodeClick()"></el-tree>
+          check-strictly
+          @check-change="handleNodeClick"
+          :filter-node-method="filterNode"
+          ref="tree"></el-tree>
 
     </div>
 
     <div class="manager_card">
+      <div class="title">
+        {{addMenuType == true?'新建菜单':'修改菜单'}}
+      </div>
+      <div class="card_main">
+        <div class="menu_input">
+          <p class="card_name">上级ID：</p>
+          <el-input v-model="menuParentId" disabled></el-input>
+        </div>
+        <div class="menu_input">
+          <p class="card_name">名称：</p>
+          <el-input v-model="menuName"></el-input>
+        </div>
 
+        <div class="menu_check">
+          <p class="card_name">类型：</p>
+          <el-radio-group v-model="menuType">
+            <el-radio :label="0">菜单</el-radio>
+            <el-radio :label="1">按钮</el-radio>
+          </el-radio-group>
+        </div>
+
+        <div class="menu_input" v-if="menuType !== 1">
+          <p class="card_name">图标：</p>
+          <el-input v-model="menuIcon"></el-input>
+        </div>
+        <div class="menu_input" v-if="menuType !== 1">
+          <p class="card_name">地址：</p>
+          <el-input v-model="menuUrl"></el-input>
+        </div>
+        <div class="menu_input">
+          <p class="card_name">权限：</p>
+          <el-input v-model="menuPerms"></el-input>
+        </div>
+        <div class="menu_input" v-if="menuType !== 1">
+          <p class="card_name">排序：</p>
+          <el-input v-model="menuOrder"></el-input>
+        </div>
+
+      </div>
+      <div class="card_bottom">
+        <el-button type="primary" @click="submitBtn">保存</el-button>
+      </div>
     </div>
 
   </div>
@@ -35,45 +78,171 @@
     name: "menuManager",
     data(){
       return {
+        loading: false,
         searchInput: '', // 列表搜索框
 
-        checkList: [],
-        menuList: [],
-        defaultProps:{
+        checkList: [],  // 选中的列表
+        unCheckList: '', // 取消选中的列表
+
+        menuList: [],  // 列表数据
+        defaultProps:{  // 默认字段名
           children: 'childs',
           label: 'title'
         },
         count: 1,
+
+        addMenuType: true,  // 新建菜单状态
+
+        // 默认
+        menuId: '', // 按钮ID
+        menuParent: 0,  // 上级ID
+        menuName: '', // 名称
+        menuType:0,  // 类型
+        menuIcon:'',  // 图标
+        menuUrl: '', // 地址
+        menuPerms: '',  // 权限
+        menuOrder: '',  // 排序
+
+        menuParentId: '',  // 选中状态下上级ID
       }
     },
     created(){
       this.getMenuList()
     },
+    watch: {
+      searchInput(val) {
+        this.$refs.tree.filter(val);
+      }
+    },
     methods:{
       getMenuList(){
-        this.$axios.get('manager/menu/tree')
+        this.loading = true;
+        this.ax.get('menu/tree')
             .then(res =>{
-              this.menuList = res.data.body.childs
+                this.loading = false
+                this.menuList = res.childs
             })
       },
-
-      handleNodeClick(data, checked, indeterminate){
-        console.log(data, checked, indeterminate);
+      // 搜索
+      filterNode(value, data) {
+        if (!value) return true;
+        return data.title.indexOf(value) !== -1;
+      },
+      // 刷新按钮
+      refresh(){
+        this.getMenuList();
+        this.addMenuType = true;
+        this.menuParent = 0;
+        this.menuName = '';
+        this.menuType = 0;
+        this.menuIcon = '';
+        this.menuUrl = '';
+        this.menuPerms = '';
+        this.menuOrder = '';
+        this.checkList = []
       },
 
-      loadNode(node, resolve){
-        console.log(node.data);
+      // 添加列表
+      addMenu(){
+        if(this.checkList.length === 1){
+          this.menuParent = String(this.checkList);
+        }else if(this.checkList.length < 1){
+          this.menuParent = 0;
+        }else {
+          this.$message.warning('只能选择一个节点作为父级')
+        }
+        this.addMenuType = true;
+        this.menuName = '';
+        this.menuType = 0;
+        this.menuIcon = '';
+        this.menuUrl = '';
+        this.menuPerms = '';
+        this.menuOrder = '';
+        this.checkList = []
+      },
 
-        setTimeout(() => {
-          let data;
-          if (node.hasChild) {
-            data = node.data;
-          } else {
-            data = [];
+      // 删除
+      removeMenu(){
+        this.$confirm('当您点击确定按钮后，这些记录将会被彻底删除，如果其包含子记录，也将一并删除！', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          let data = {
+            menuIds: String(this.checkList)
+          };
+          this.ax.post('menu/delete',data)
+              .then(res =>{
+                  this.getMenuList()
+                  this.$message.success('删除成功')
+                  this.checkList = []
+              })
+        }).catch(() => {
+
+        });
+      },
+
+      // 选择列表
+      handleNodeClick(data, checked, indeterminate){
+        if(checked){
+          console.log(this.checkList);
+          this.checkList.push(data.data.menuId)
+          this.menuParentId = data.data.menuId
+        }else if(!checked){
+          for(let i = 0; i < this.checkList.length; i++) {
+            if(this.checkList[i] === data.data.menuId) {
+              if (i > -1) {
+                this.checkList.splice(i, 1);
+              }
+            }
           }
+        }
+      },
 
-          resolve(data);
-        }, 500);
+      // 保存按钮
+      submitBtn(){
+        let data ={
+          menuId: this.menuId,
+          parentId: this.menuParent,
+          menuName: this.menuName,
+          type: this.menuType,
+          url: this.menuUrl,
+          perms: this.menuPerms,
+          icon: this.menuIcon,
+          orderNum: this.menuOrder
+        };
+
+        let urlType;
+        let typeMessage;
+        if(this.addMenuType){
+          urlType = 'add';
+          typeMessage = '添加成功'
+        }else {
+          urlType = 'edit';
+          typeMessage = '修改成功'
+        }
+        this.ax.post('menu/'+urlType,data)
+            .then(res =>{
+                this.$message.success(typeMessage)
+                this.getMenuList()
+                this.checkList = []
+       
+            })
+
+      },
+
+      // 点击列表获取data
+      loadNode(data){
+        this.addMenuType = false;
+        let menuData = data.data;
+        this.menuId = menuData.menuId;
+        this.menuName = menuData.menuName;
+        this.menuType = parseInt(menuData.type);
+        this.menuIcon = menuData.icon;
+        this.menuUrl = menuData.url;
+        this.menuPerms = menuData.perms;
+        this.menuOrder = menuData.orderNum;
+        this.menuParentId = menuData.menuId;
       }
 
     }
@@ -90,7 +259,6 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0 10%;
         margin-bottom: 15px;
         .search{
           display: flex;
@@ -103,18 +271,6 @@
         .setting_btn{
           display: flex;
           align-items: center;
-          >p{
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2px 5px;
-            border: 1px solid #dedede;
-            cursor: pointer;
-            border-radius: 2px;
-            &:not(:last-child){
-              margin-right: 10px;
-            }
-          }
         }
       }
       .list_main{
@@ -127,6 +283,33 @@
     }
     .manager_card{
       flex: 1;
+      margin-left: 10%;
+      .title{
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid #dedede;
+        padding: 10px 0;
+        margin-bottom: 15px;
+      }
+      .card_main{
+        >div{
+          display: flex;
+          align-items: center;
+          >p{
+            flex-shrink: 0;
+            width: 70px;
+            text-align: right;
+            margin-right: 15px;
+          }
+        }
+      }
+      .card_bottom{
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 10px 0;
+      }
+
     }
   }
 </style>

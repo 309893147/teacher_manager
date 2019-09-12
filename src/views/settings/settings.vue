@@ -137,6 +137,70 @@
           </el-col>
         </el-row>
       </el-tab-pane>
+
+      <el-tab-pane label="新手专享">
+        <el-row>
+          <el-col :span="8">
+            <el-form label-position="top" label-width="80px" :disabled="!editable">
+              <el-form-item label="微信号">
+                <el-input v-model="exclusive.wx" placeholder="微信号"></el-input>
+              </el-form-item>
+
+              <el-form-item label="投资金额">
+                <el-input v-model="exclusive.investmentAmount" placeholder="投资金额"></el-input>
+              </el-form-item>
+
+              <el-form-item label="投资天数">
+                <el-input v-model="exclusive.investmentDay" placeholder="投资天数"></el-input>
+              </el-form-item>
+
+              <el-form-item label="收益金额">
+                <el-input v-model="exclusive.amountIncome" placeholder="收益金额"></el-input>
+              </el-form-item>
+
+              <el-form-item label="赠送积分">
+                <el-input v-model="exclusive.giftPoints" placeholder="赠送积分"></el-input>
+              </el-form-item>
+
+              <el-form-item>
+                <el-button
+                  type="primary"
+                  @click="updateExclusiveData()"
+                  v-if="editable"
+                  :loading="loading"
+                >保存</el-button>
+                <el-button @click="cancelEdit" v-if="editable" :disabled="loading">取消</el-button>
+              </el-form-item>
+            </el-form>
+            <el-button @click="editable=true" v-if="!editable" type="primary">编辑</el-button>
+          </el-col>
+        </el-row>
+      </el-tab-pane>
+
+      <el-tab-pane label="定金">
+        <el-row>
+          <el-col :span="8">
+            <el-form label-position="top" label-width="80px" :disabled="!editable">
+              <el-form-item label="定金">
+                <el-input v-model="deposit.content" placeholder="定金"></el-input>
+              </el-form-item>
+
+              <el-form-item>
+                <el-button
+                    type="primary"
+                    @click="updateWebPageDepositConfig()"
+                    v-if="editable"
+                    :loading="loading"
+                >保存</el-button>
+                <el-button @click="cancelEdit" v-if="editable" :disabled="loading">取消</el-button>
+              </el-form-item>
+            </el-form>
+            <el-button @click="editable=true" v-if="!editable" type="primary">编辑</el-button>
+          </el-col>
+        </el-row>
+      </el-tab-pane>
+
+
     </el-tabs>
   </div>
 </template>
@@ -150,19 +214,24 @@ export default {
       pointsItem: "",
       phoneItem: "",
       wxItem: "",
+      deposit: '',
       editable: false,
       config: [],
       rules: {},
       loading: false,
-      formModel: {}
+      formModel: {},
+
+      exclusive: ''
     };
   },
   created() {
+    this.getWebPagePointsConfig();
     this.getWxPayConfig();
     this.getSmsConfig();
-    this.getWebPagePointsConfig();
     this.getWebPagePhoneConfig();
     this.getWebPageWxConfig();
+    this.getExclusiveData();
+    this.getWebPageDepositConfig()
   },
   methods: {
     cancelEdit() {
@@ -174,7 +243,9 @@ export default {
       vm.ax
         .get("/webpage/querybyname?name=" + "invite_points")
         .then(it => {
-          vm.pointsItem = it;
+          JSON.parse(JSON.stringify(it)).map(res =>{
+            vm.pointsItem =res
+          })
         })
         .catch(err => {
           console.log(err); // 这里catch到错误timeout
@@ -185,7 +256,9 @@ export default {
       vm.ax
         .get("/webpage/querybyname?name=" + "wechat_number")
         .then(it => {
-          vm.wxItem = it;
+          JSON.parse(JSON.stringify(it)).map(res =>{
+            vm.wxItem = res;
+          })
         })
         .catch(err => {
           console.log(err); // 这里catch到错误timeout
@@ -196,11 +269,37 @@ export default {
       vm.ax
         .get("/webpage/querybyname?name=" + "my_customer_number")
         .then(it => {
-          vm.phoneItem = it;
+          JSON.parse(JSON.stringify(it)).map(res =>{
+            vm.phoneItem = res;
+          })
         })
         .catch(err => {
           console.log(err); // 这里catch到错误timeout
         });
+    },
+
+    getWebPageDepositConfig() {
+      let vm = this;
+      vm.ax
+          .get("/webpage/querybyname?name=" + "deposit")
+          .then(it => {
+            JSON.parse(JSON.stringify(it)).map(res =>{
+              vm.deposit = res;
+            })
+          })
+          .catch(err => {
+            console.log(err); // 这里catch到错误timeout
+          });
+    },
+
+    updateWebPageDepositConfig() {
+      let vm = this;
+      vm.loading = true;
+      this.ax.post("/webpage/update", vm.deposit).then(it => {
+        vm.loading = false;
+        vm.editable = false;
+        vm.$message.success({ message: "修改成功" });
+      });
     },
 
      getWxPayConfig() {
@@ -208,7 +307,7 @@ export default {
       this.ax
         .get("/common/wxpayconfig")
         .then(it => {
-          vm.currentItem = it;
+          vm.currentItem = JSON.parse(JSON.stringify(it));
         })
         .catch(err => {
           console.log(err); // 这里catch到错误timeout
@@ -219,14 +318,26 @@ export default {
       this.ax
         .get("/common/smsconfig")
         .then(it => {
-          vm.smsItem = it;
-          console.log(vm.smsItem);
+          vm.smsItem = JSON.parse(JSON.stringify(it));
         })
         .catch(err => {
           console.log(err); // 这里catch到错误timeout
         });
     },
 
+    getExclusiveData(){
+      this.ax.get('/publicproject/novice/exclusive')
+          .then(res =>{
+            this.exclusive = res
+          })
+    },
+    updateExclusiveData(){
+      this.ax.post('/publicproject/update/exclusive',this.exclusive)
+          .then(res =>{
+            this.$message.success('保存成功')
+            this.editable=false
+          })
+    },
 
     updateWebPagePointsConfig() {
       let vm = this;

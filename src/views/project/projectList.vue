@@ -2,7 +2,7 @@
   <div>
     <List :header="tableHeader" @page="getBanner" :data="tableData" :page="pageInfo">
       <div slot="filters">
-        <el-input v-model="filter.name" placeholder="项目名称" style="width:auto" clearable></el-input>
+        <el-input v-model="filter.projectName" placeholder="项目名称" style="width:auto" clearable></el-input>
         <el-select v-model="filter.projectAvailable">
           <el-option label="全部状态" :value="null"></el-option>
           <el-option label="未审核" :value="0"></el-option>
@@ -29,16 +29,13 @@
           ></el-option>
         </el-select>
 
-        <el-button type="primary" @click="getBanner(0,20)">筛选</el-button>
+        <el-button class="getBannerBtn" type="primary" @click="getBanner(1,20)">筛选</el-button>
       </div>
 
       <el-table-column slot="actions" label="操作" width="300">
         <template slot-scope="scope">
-          <router-link :to="'/project/addProjectDetail'">
-            <el-button>完善信息</el-button>
-          </router-link>
-          <el-button type="primary" @click="reviewPublish(scope.row.id,'1',scope.$index)">通过</el-button>
-          <el-button type="danger" @click="reviewPublish(scope.row.id,'2',scope.$index)">驳回</el-button>
+          <el-button type="primary" v-if="scope.row.projectAvailable === '未通过'" @click="reviewPublish(scope.row.id,'1',scope.$index)">通过</el-button>
+          <el-button type="danger" v-if="scope.row.projectAvailable === '审核通过' || scope.row.projectAvailable === '未审核'" @click="reviewPublish(scope.row.id,'2',scope.$index)">驳回</el-button>
         </template>
       </el-table-column>
     </List>
@@ -147,9 +144,9 @@ export default {
   computed: {
     tableData() {
       let projectAvailable = {
-        0: "待处理",
-        1: "同意",
-        2: "驳回"
+        0: "未审核",
+        1: "审核通过",
+        2: "未通过"
       };
 
       let projectSchedule = {
@@ -163,12 +160,15 @@ export default {
       return this.listData.map(it => {
         it.projectAvailable = projectAvailable[it.projectAvailable];
         it.projectSchedule = projectSchedule[it.projectSchedule];
-        it.name = it.projectTypeDto.name;
         return it;
       });
     },
     tableHeader() {
       return [
+        {
+          key: "projectName",
+          name: "项目名称"
+        },
         {
           key: "name",
           name: "投资类型"
@@ -182,10 +182,7 @@ export default {
           key: "contactPhone",
           name: "联系电话"
         },
-        {
-          key: "projectName",
-          name: "项目名称"
-        },
+
         {
           key: "location",
           name: "地理位置"
@@ -215,7 +212,19 @@ export default {
   }
 };
 </script>
-<style scoped>
+<style scoped rel="stylesheet/scss" lang="scss">
+  /deep/.top-filters{
+    >div{
+      display: flex;
+      align-items: center;
+      .el-select{
+        margin-left: 15px;
+      }
+      .getBannerBtn{
+        margin: 0 0 0 15px;
+      }
+    }
+  }
 .detail-table {
   border-collapse: collapse;
 }

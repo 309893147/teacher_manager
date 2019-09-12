@@ -14,11 +14,11 @@
         <div class="v-padding">用户名：{{user.userName}}</div>
         <div class="v-padding">电话：{{user.phone}}</div>
         <div class="v-padding">邮箱：{{user.email}}</div>
-        <div class="v-padding">微信名：{{user.WxName}}</div>
+        <div class="v-padding">微信名：{{user.wxName}}</div>
         <div class="v-padding">性别：{{user.sex}}</div>
-        <div class="v-padding">是否认证：{{user.cardCertification}}</div>
+        <div class="v-padding">是否身份证认证：{{user.cardCertification}}</div>
         <div class="v-padding">是否高级认证：{{user.advancedCertification}}</div>
-        <div class="v-padding">电话：{{user.bankCardType}}</div>
+        <div class="v-padding">是否绑定银行卡：{{user.bankCardType}}</div>
         <div class="v-padding">是否填写收件地址:{{user.hasAddress}}</div>
         <div class="v-padding">积分:{{user.integral}}</div>
       </el-tab-pane>

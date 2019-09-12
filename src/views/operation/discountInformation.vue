@@ -23,17 +23,17 @@
     <el-dialog :visible.sync="addDialog" :close-on-click-modal="false" v-if="addDialog">
       <el-form>
         <el-form-item label="标题：" label-width="6rem;">
-          <el-input v-model="activityItem.title" placeholder="活动标题"></el-input>
+          <el-input v-model="activityItem.title" placeholder="优惠信息标题"></el-input>
         </el-form-item>
         <el-form-item label="摘要：" label-width="6rem;">
-          <el-input v-model="activityItem.summary" placeholder="活动摘要"></el-input>
+          <el-input v-model="activityItem.summary" placeholder="优惠信息摘要"></el-input>
         </el-form-item>
         <el-form-item label="摘要图片：" label-width="6rem;">
           <ImageInput v-model="activityItem.summaryUrl" url="common/addPictureUrl"></ImageInput>
         </el-form-item>
 
         <el-form-item label="内容：" label-width="6rem;">
-          <text-editor v-model="activityItem.content" placeholder="活动内容"></text-editor>
+          <text-editor v-model="activityItem.content" placeholder="优惠信息内容"></text-editor>
         </el-form-item>
       </el-form>
       <div slot="footer">
@@ -41,7 +41,7 @@
         <el-button @click="saveRecommendStroy">提交</el-button>
       </div>
     </el-dialog>
-    <el-dialog :visible.sync="showDelete" width="20%">
+    <el-dialog :visible.sync="showDelete" width="200px">
       确认是否删除
       <div slot="footer">
         <el-button @click="cloneDeleteMode()">取消</el-button>
@@ -108,8 +108,8 @@ export default {
     deleteTeam() {
       let vm = this;
       console.log(this.deleteList.id);
-      let data={
-        id: this.deleteList.id
+      let data= {
+        id : this.deleteList.id
       }
       vm.ax
         .post("/webpage/delete", data)
@@ -127,8 +127,8 @@ export default {
 
     saveRecommendStroy() {
       let vm = this;
-      //设置推荐故事 name
-      vm.activityItem.name = "popular_events";
+      //设置运营报告 name
+      vm.activityItem.name = "discountInformation";
       if (!vm.activityItem.id) {
         vm.ax
           .post("/webpage/save", vm.activityItem)
@@ -164,7 +164,7 @@ export default {
           params: {
             "page.currentPage": page,
             "page.pageSize": size,
-            name: "popular_events",
+            name: "discountInformation",
             ...this.filter
           }
         })

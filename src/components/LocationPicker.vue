@@ -1,6 +1,6 @@
 <template>
     <div>
-        <el-dialog :visible.sync="show" :title="'选择坐标'" @click="$emit('close')" :show-close="false">
+        <el-dialog :visible.sync="show" :title="'选择坐标'" @click="$emit('close')" :show-close="false" :close-on-click-modal="false" :close-on-press-escape="false">
             <div style="text-align:right">
                 <el-amap-search-box class="search-box" :search-option="searchOption" :on-search-result="onSearchResult" style="display:inline-block"></el-amap-search-box>
             </div>
@@ -43,7 +43,7 @@ export default {
           vm.lnglat = maker.lnglat;
         }
       },
-      mapCenter: [121.59996, 31.197646],
+      mapCenter: this.mapCenter?this.mapCenter:[121.59996, 31.197646],
       searchOption: {
         citylimit: false
       },

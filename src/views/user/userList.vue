@@ -13,12 +13,14 @@
         </template>
       </el-table-column>
       <div slot="filters">
-        <!-- <el-input v-model="filter.name" placeholder="名字" style="width:auto" clearable></el-input>
-        <el-select v-model="filter.state">
-          <el-option label="全部角色" :value="null"></el-option>
-          <el-option label="用户" value="USER">用户</el-option>
-          <el-option label="商家" value="STORE">商家</el-option>
-        </el-select> -->
+        <el-input v-model="filter.userName" placeholder="名字" style="width:auto" clearable></el-input>
+        <el-input v-model="filter.phone" placeholder="手机号" style="width:auto" clearable></el-input>
+        <el-input v-model="filter.province" placeholder="邮箱" style="width:auto" clearable></el-input>
+<!--        <el-select v-model="filter.state">-->
+<!--          <el-option label="全部角色" :value="null"></el-option>-->
+<!--          <el-option label="用户" value="USER">用户</el-option>-->
+<!--          <el-option label="商家" value="STORE">商家</el-option>-->
+<!--        </el-select> &ndash;&gt;-->
         <el-button type="primary" @click="getList(0,20)">筛选</el-button>
       </div>
       <el-table-column slot="actions" label="操作">
@@ -46,8 +48,9 @@ export default {
       page: 0,
       outerVisible: false,
       filter: {
-        name: null,
-        mobile: null
+        userName: null,
+        phone: null,
+        province: null,
       },
       pageInfo: {}
     };
@@ -93,21 +96,19 @@ export default {
       this.currentItem = item;
     },
     openUserInfo(row) {
-      console.log(row);
       this.outerVisible = true;
     },
     getList(page,size) {
       let vm = this;
       this.ax("user/list", {
         params: {
-          "page.currentPage": page,
+          "page.currentPage": page > 0 ? page :1,
           "page.pageSize": size,
           ...this.filter
 
         }
       }).then(data => {
         vm.list = data.dataList;
-        delete data.dataList;
         vm.pageInfo = data.page;
       });
     }

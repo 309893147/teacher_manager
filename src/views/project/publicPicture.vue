@@ -7,7 +7,7 @@
         </template>
       </el-table-column>
       <div slot="top-actions">
-        <el-button type="primary" @click="addDialog=true">添加</el-button>
+        <el-button type="primary" @click="addDialogShow()">添加</el-button>
       </div>
 
       <el-table-column slot="actions" label="操作" width="300">
@@ -30,7 +30,7 @@
       <el-form>
         <el-form>
           <el-form-item label="图片上传">
-            <ImageInput v-model="currentItem.url" url="publicPicture/addPictureUrl"></ImageInput>
+            <ImageInput v-model="currentItem.url" url="publicPicture/addPictureUrl" ref="imageValue"></ImageInput>
           </el-form-item>
           <el-form-item label="排序">
             <el-input type="number" value="0" v-model="currentItem.sort"></el-input>
@@ -38,7 +38,7 @@
         </el-form>
       </el-form>
       <div slot="footer">
-        <el-button @click="addDialog = false">取消</el-button>
+        <el-button @click="closeDislog">取消</el-button>
         <el-button @click="addPicture" type="primary" :loading="loading">保存</el-button>
       </div>
     </el-dialog>
@@ -96,6 +96,16 @@ export default {
     }
   },
   methods: {
+    closeDislog(){
+      this.addDialog = false
+      if(this.currentItem.url){
+        this.$refs.imageValue.images = []
+      }
+    },
+    addDialogShow(){
+      this.addDialog = true
+      this.currentItem = {}
+    },
     openDeleteMode(item) {
       this.deleteList = item;
       this.showDelete = true;
@@ -127,11 +137,13 @@ export default {
     //   this.addDialog = true;
     // },
     editPicture(item) {
-      this.currentItem = item;
+      this.currentItem = JSON.parse(JSON.stringify(item));
       this.addDialog = true;
     },
     addPicture() {
       let vm = this;
+      console.log(vm.currentItem)
+      vm.currentItem['publicProjectId'] = vm.publicProjectId
       if (!vm.currentItem.id) {
         vm.ax
           .post("/publicPicture/save", vm.currentItem)
@@ -146,6 +158,7 @@ export default {
               return true;
             });
             vm.$message.success("操作成功");
+            vm.$refs.imageValue.images = []
           })
           .catch(it => {
             vm.error(it);
@@ -164,6 +177,7 @@ export default {
               return true;
             });
             vm.$message.success("操作成功");
+            vm.$refs.imageValue.images = []
           })
           .catch(it => {
             vm.error(it);

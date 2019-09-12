@@ -27,7 +27,7 @@
         </el-form-item>
 
         <el-form-item label="排序">
-          <el-input type="number" value="0" v-model="bannerItem.sort"></el-input>
+          <el-input type="number" v-model="bannerItem.sort"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer">
@@ -53,7 +53,9 @@ export default {
   data() {
     return {
       bannerItem: {
-        status: 0
+        status: 0,
+        placeName: '',
+        sort: ''
       },
       showMaModal: false,
       showAddDialog: false,
@@ -98,32 +100,32 @@ export default {
     },
     addBanner() {
       let vm = this;
-      let msg = null;
-      if (msg !== null) {
-        this.error(msg);
-        return;
-      }
-      if (!vm.bannerItem.id) {
-        this.ax
-          .post("/common/popularsearches/add", this.bannerItem)
-          .then(it => {
-            this.getBanner();
-            vm.showAddDialog = false;
-          })
-          .catch(it => {
-            vm.error(it);
-          });
+      if(this.bannerItem.sort && this.bannerItem.placeName ){
+        if (!vm.bannerItem.id) {
+          this.ax
+              .post("/common/popularsearches/add", this.bannerItem)
+              .then(it => {
+                this.getBanner();
+                vm.showAddDialog = false;
+              })
+              .catch(it => {
+                vm.error(it);
+              });
+        } else {
+          this.ax
+              .post("/common/popularsearches/update", this.bannerItem)
+              .then(it => {
+                this.getBanner();
+                vm.showAddDialog = false;
+              })
+              .catch(it => {
+                vm.error(it);
+              });
+        }
       } else {
-        this.ax
-          .post("/common/popularsearches/update", this.bannerItem)
-          .then(it => {
-            this.getBanner();
-            vm.showAddDialog = false;
-          })
-          .catch(it => {
-            vm.error(it);
-          });
+        this.$message.warning('信息未填写完整')
       }
+
     },
     getBanner() {
       let vm = this;

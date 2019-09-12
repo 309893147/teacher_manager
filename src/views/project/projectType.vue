@@ -2,7 +2,7 @@
   <div>
     <List :header="tableHeader" :data="tableData" @page="getBanner" :page="pageInfo" width="900">
       <div slot="top-actions">
-        <el-button type="primary" @click="addDialog=true">添加</el-button>
+        <el-button type="primary" @click="addShow()">添加</el-button>
       </div>
 
       <el-table-column slot="actions" label="操作" width="300">
@@ -55,7 +55,8 @@ export default {
       listData: [],
       pageInfo: {},
       openDetailDialog: false,
-      newItem: {}
+      newItem: {},
+      editShow: false
     };
   },
   created() {
@@ -64,35 +65,61 @@ export default {
 
   methods: {
     openDeleteMode(item) {
-      this.deleteList = item;
+      this.deleteList = JSON.parse(JSON.stringify(item));
       this.showDelete = true;
     },
     cloneDeleteMode() {
       this.showDelete = false;
     },
     editType(item) {
-      this.newItem = item;
+      this.editShow= true
+      this.newItem = JSON.parse(JSON.stringify(item));
+      this.addDialog = true;
+    },
+    addShow(){
+      this.editShow= false
       this.addDialog = true;
     },
     addType() {
       let vm = this;
-      vm.ax
-        .post("/projectType/save", vm.newItem)
-        .then(it => {
-          vm.getBanner();
-          vm.cloneInput();
-          vm.newItem = {};
-          vm.listData.forEach(item => {
-            if (item.id == it.id) {
-              Object.assign(item, it);
-            }
-            return true;
-          });
-          vm.$message.success("操作成功");
-        })
-        .catch(it => {
-          vm.error(it);
-        });
+      if(this.editShow){
+        vm.ax
+            .post("/projectType/update", vm.newItem)
+            .then(it => {
+              vm.getBanner();
+              vm.cloneInput();
+              vm.newItem = {};
+              vm.listData.forEach(item => {
+                if (item.id == it.id) {
+                  Object.assign(item, it);
+                }
+                return true;
+              });
+              vm.$message.success("操作成功");
+            })
+            .catch(it => {
+              vm.error(it);
+            });
+      } else {
+        vm.ax
+            .post("/projectType/save", vm.newItem)
+            .then(it => {
+              vm.getBanner();
+              vm.cloneInput();
+              vm.newItem = {};
+              vm.listData.forEach(item => {
+                if (item.id == it.id) {
+                  Object.assign(item, it);
+                }
+                return true;
+              });
+              vm.$message.success("操作成功");
+            })
+            .catch(it => {
+              vm.error(it);
+            });
+      }
+
     },
     deleteType() {
       let vm = this;

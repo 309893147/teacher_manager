@@ -108,8 +108,9 @@ export default {
      getProjectDetail() {
       let vm = this;
       this.ax
-        .get("/publicproject/queryOne?publishProjectId=" + this.publishProjectId)
+        .get("/publicproject/queryById?publishProjectId=" + this.publishProjectId)
         .then(it => {
+          console.log(it);
           vm.projectDetail = it;
         })
         .catch(e => {

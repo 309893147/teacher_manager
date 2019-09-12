@@ -8,12 +8,16 @@
           <el-option v-for="item in typeData" :key="item.id" :label="item.name" :value="item.id"></el-option>
         </el-select>
         <el-select v-model="filter.projectStatus">
-          <el-option label="全部进度" :value="null"></el-option>
-          <el-option label="考察" :value="0"></el-option>
-          <el-option label="已投资" :value="1"></el-option>
-          <el-option label="待投资" :value="2"></el-option>
-          <el-option label="预投资" :value="3"></el-option>
-          <el-option label="完成" :value="4"></el-option>
+          <el-option label="全部状态" :value="null"></el-option>
+          <el-option label="预告中" :value="0"></el-option>
+          <el-option label="预约中" :value="1"></el-option>
+          <el-option label="认购中" :value="2"></el-option>
+          <el-option label="已完成" :value="3"></el-option>
+        </el-select>
+        <el-select v-model="filter.useType">
+          <el-option label="全部发布状态" :value="null"></el-option>
+          <el-option label="未发布" :value="0"></el-option>
+          <el-option label="已经发布" :value="1"></el-option>
         </el-select>
 
         <el-button type="primary" @click="getBanner(1,10)">筛选</el-button>
@@ -26,14 +30,13 @@
         <!-- <el-button type="primary" @click="addDialog=true">添加</el-button> -->
       </div>
 
-      <el-table-column slot="actions" label="操作" width="300">
+      <el-table-column slot="actions" label="操作" width="200">
         <template slot-scope="scope">
-          <router-link :to="'/project/updateProjectDetail?id='+scope.row.id">
-            <el-button>查看文件</el-button>
-          </router-link>
-          <router-link :to="'/project/updateProjectDetail?id='+scope.row.id">
-            <el-button type="primary">编辑</el-button>
-          </router-link>
+<!--          <router-link :to="'/project/updateProjectDetail?id='+scope.row.id">-->
+<!--            <el-button>查看文件</el-button>-->
+<!--          </router-link>-->
+            <el-button type="primary" @click="jumpDetail(scope.row.id)">编辑</el-button>
+            <el-button type="success" v-if="scope.row.useType === '未发布'" @click="release(scope.row.id)">发布</el-button>
         </template>
       </el-table-column>
     </List>
@@ -60,7 +63,8 @@ export default {
         projectName: null,
         approvalStatus: null,
         projectStatus: null,
-        investmentTypeId: null
+        investmentTypeId: null,
+        useType: null
       },
       page: {
         currentPage: null,
@@ -80,6 +84,26 @@ export default {
     }
   },
   methods: {
+    release(val){
+      let data={
+        useType: '1',
+        publicProjectId: val
+      }
+      this.ax.post('publicproject/update/usetype',data)
+          .then(res =>{
+              this.$message.success('发布成功')
+              this.getBanner()
+          })
+    },
+    jumpDetail(val){
+      this.$router.push(
+          {
+            path: '/project/updateProjectDetail',
+            query:{
+              id: val
+            }
+          })
+    },
     openDetail(item) {
       this.currentItem = item;
       this.openDetailDialog = true;
@@ -123,30 +147,39 @@ export default {
   computed: {
     tableData() {
       let projectStatus = {
-        0: "考察",
-        1: "已投资",
-        2: "待投资",
-        3: "预投资",
-        4: "完成"
+        0: "预告中",
+        1: "预约中",
+        2: "认购中",
+        3: "已完成"
       };
-
+// $GetTime freshRecommend
       let investmentSubject = {
         0: "个人",
         1: "公司"
       };
 
+      let freshRecommend ={
+        0 : '不是',
+        1 : '是'
+      }
+
+      let useType ={
+        0 : '未发布',
+        1 : '已发布'
+      }
+
+
       return this.listData.map(it => {
+        it.subscriptionEndTime = this.$GetTime(it.subscriptionEndTime)
         it.projectStatus = projectStatus[it.projectStatus];
         it.investmentSubject = investmentSubject[it.investmentSubject];
+        it.useType = useType[it.useType];
+        it.freshRecommend = freshRecommend[it.freshRecommend];
         return it;
       });
     },
     tableHeader() {
       return [
-        {
-          key: "createBy",
-          name: "管理人"
-        },
         {
           key: "projectName",
           name: "项目名称"
@@ -166,7 +199,7 @@ export default {
         },
         {
           key: "projectStatus",
-          name: "项目进度"
+          name: "项目状态"
         },
         {
           key: "investmentSubject",
@@ -184,25 +217,29 @@ export default {
           key: "detailedLocation",
           name: "详细地址"
         },
+        // {
+        //   key: "longitude",
+        //   name: "经度"
+        // },
+        // {
+        //   key: "latitude",
+        //   name: "纬度"
+        // },
         {
-          key: "longitude",
-          name: "经度"
-        },
-        {
-          key: "latitude",
-          name: "纬度"
-        },
-        {
-          key: "createDate",
-          name: "创建时间"
-        },
-        {
-          key: "subscription",
-          name: "认购时间/天"
+          key: "subscriptionEndTime",
+          name: "结束时间"
         },
         {
           key: "attentionNumber",
           name: "关注人数"
+        },
+        {
+          key: "freshRecommend",
+          name: "是否最新推荐"
+        },
+        {
+          key: "useType",
+          name: "发布状态"
         }
       ];
     }

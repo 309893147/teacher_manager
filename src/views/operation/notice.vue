@@ -28,7 +28,7 @@
           <el-input v-model="noticeItem.summary" placeholder="通知摘要"></el-input>
         </el-form-item>
         <el-form-item label="摘要图片：" label-width="6rem;">
-          <ImageInput v-model="noticeItem.summaryUrl" url="publicPicture/addPictureUrl"></ImageInput>
+          <ImageInput v-model="noticeItem.summaryUrl" url="common/addPictureUrl"></ImageInput>
         </el-form-item>
         <el-form-item label="内容：" label-width="6rem;">
           <text-editor v-model="noticeItem.content" placeholder="通知内容"></text-editor>
@@ -39,7 +39,7 @@
         <el-button @click="save()">提交</el-button>
       </div>
     </el-dialog>
-    <el-dialog :visible.sync="showDelete">
+    <el-dialog :visible.sync="showDelete" width="200px">
       确认是否删除
       <div slot="footer">
         <el-button @click="cloneDeleteMode()">取消</el-button>
@@ -94,12 +94,12 @@ export default {
       this.addDialog = false;
     },
     editNotice(item) {
-      this.noticeItem = item;
+      this.noticeItem = JSON.parse(JSON.stringify(item));
       this.addDialog = true;
     },
 
     openDeleteMode(item) {
-      this.deleteList = item;
+      this.deleteList = JSON.parse(JSON.stringify(item));
       this.showDelete = true;
     },
     cloneDeleteMode() {

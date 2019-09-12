@@ -10,21 +10,10 @@
       :disableAction="true"
     >
       <div slot="filters">
-        <el-input v-model="filter.name" placeholder="名称" style="width:auto" clearable></el-input>
-        <el-select v-model="filter.state">
-          <el-option label="全部状态" :value="null"></el-option>
-          <el-option label="未处理" value="UNPROCESSED"></el-option>
-          <el-option label="已处理" value="PROCESSED"></el-option>
-          <el-option label="误报" value="ARTIFICIAL"></el-option>
-        </el-select>
+        <el-input v-model="filter.userName" placeholder="名称" style="width:auto" clearable></el-input>
 
-        <el-button type="primary" @click="getList(0,20)">筛选</el-button>
+        <el-button type="primary" @click="getList(1,20)">筛选</el-button>
       </div>
-      <el-table-column slot="actions" label="操作">
-        <template slot-scope="scope">
-          <el-button type="primary" @click="editFeedback(scope.row)">编辑</el-button>
-        </template>
-      </el-table-column>
     </List>
 
     <el-dialog title="反馈状态" :visible.sync="dialogVisible" width="30%">
@@ -55,8 +44,7 @@ export default {
       listData: [],
       pageInfo: {},
       filter: {
-        name: null,
-        state: null,
+        userName: null,
       },
       currentItem: {}
     };
@@ -122,7 +110,7 @@ export default {
       let vm = this;
       return [
         {
-          key: "userId",
+          key: "userName",
           name: "反馈人"
         },
         {

@@ -63,7 +63,9 @@ export default {
   data() {
     return {
       bannerItem: {
-        status: 0
+        status: '',
+        url: '',
+        sort: ''
       },
       showMaModal: false,
       showAddDialog: false,
@@ -97,7 +99,7 @@ export default {
       this.$emit("select", item);
     },
     editItem(item) {
-      this.bannerItem = Object.assign({}, this.bannerItem, item);
+      this.bannerItem = JSON.parse(JSON.stringify(item));
       this.$forceUpdate();
       this.showAddDialog = true;
     },
@@ -109,32 +111,33 @@ export default {
     },
     addBanner() {
       let vm = this;
-      let msg = null;
-      if (msg !== null) {
-        this.error(msg);
-        return;
-      }
-      if (!vm.bannerItem.id) {
-        this.ax
-          .post("/common/invitefriendpic/save", this.bannerItem)
-          .then(it => {
-            this.getBanner();
-            vm.showAddDialog = false;
-          })
-          .catch(it => {
-            vm.error(it);
-          });
+      console.log(this.bannerItem);
+      if(this.bannerItem.url && this.bannerItem.status !== '' && this.bannerItem.sort !==''){
+        if (!vm.bannerItem.id) {
+          this.ax
+              .post("/common/invitefriendpic/save", this.bannerItem)
+              .then(it => {
+                this.getBanner();
+                vm.showAddDialog = false;
+              })
+              .catch(it => {
+                vm.error(it);
+              });
+        } else {
+          this.ax
+              .post("/common/invitefriendpic/update", this.bannerItem)
+              .then(it => {
+                this.getBanner();
+                vm.showAddDialog = false;
+              })
+              .catch(it => {
+                vm.error(it);
+              });
+        }
       } else {
-        this.ax
-          .post("/common/invitefriendpic/update", this.bannerItem)
-          .then(it => {
-            this.getBanner();
-            vm.showAddDialog = false;
-          })
-          .catch(it => {
-            vm.error(it);
-          });
+        this.$message.warning('信息未填写完整')
       }
+
     },
     getBanner() {
       let vm = this;

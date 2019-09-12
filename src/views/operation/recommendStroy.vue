@@ -28,7 +28,7 @@
           <el-input v-model="storyItem.summary" placeholder="推荐故事摘要"></el-input>
         </el-form-item>
         <el-form-item label="摘要图片：" label-width="6rem;">
-          <ImageInput v-model="storyItem.summaryUrl" url="publicPicture/addPictureUrl"></ImageInput>
+          <ImageInput v-model="storyItem.summaryUrl" url="common/addPictureUrl"></ImageInput>
         </el-form-item>
 
         <text-editor v-model="storyItem.content"></text-editor>
@@ -38,7 +38,7 @@
         <el-button @click="saveRecommendStroy">提交</el-button>
       </div>
     </el-dialog>
-    <el-dialog :visible.sync="showDelete">
+    <el-dialog :visible.sync="showDelete" width="200px">
       确认是否删除
       <div slot="footer">
         <el-button @click="cloneDeleteMode()">取消</el-button>
@@ -93,12 +93,12 @@ export default {
       this.addDialog = false;
     },
     editStory(item) {
-      this.storyItem = item;
+      this.storyItem = JSON.parse(JSON.stringify(item));
       this.addDialog = true;
     },
 
     openDeleteMode(item) {
-      this.deleteList = item;
+      this.deleteList = JSON.parse(JSON.stringify(item));
       this.showDelete = true;
     },
     cloneDeleteMode() {
@@ -108,9 +108,12 @@ export default {
     deleteTeam() {
       let vm = this;
       console.log(this.deleteList.id);
+      let data= {
+        id : this.deleteList.id
+      }
 
       vm.ax
-        .post("/webpage/deleteRecommendStory", this.deleteList)
+        .post("webpage/delete", data)
         .then(it => {
           vm.success("删除成功");
           vm.currentItem = {};

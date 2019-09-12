@@ -1,11 +1,11 @@
 <template>
   <div>
     <List :header="tableHeader" :data="tableData" @page="getBanner" :page="pageInfo">
-      <el-table-column label="摘要图片" slot="before">
-        <template slot-scope="scope">
-          <img v-bind:src="scope.row.summaryUrl" alt style="max-width:10em" />
-        </template>
-      </el-table-column>
+<!--      <el-table-column label="摘要图片" slot="before">-->
+<!--        <template slot-scope="scope">-->
+<!--          <img v-bind:src="scope.row.summaryUrl" alt style="max-width:10em" />-->
+<!--        </template>-->
+<!--      </el-table-column>-->
 
       <div slot="top-actions">
         <el-button type="primary" @click="addDialog=true">添加</el-button>
@@ -27,9 +27,9 @@
         <el-form-item label="摘要：" label-width="6rem;">
           <el-input v-model="dynamicItem.summary" placeholder="动态摘要"></el-input>
         </el-form-item>
-        <el-form-item label="摘要图片：" label-width="6rem;">
-          <ImageInput v-model="dynamicItem.summaryUrl" url="publicPicture/addPictureUrl"></ImageInput>
-        </el-form-item>
+<!--        <el-form-item label="摘要图片：" label-width="6rem;">-->
+<!--          <ImageInput v-model="dynamicItem.summaryUrl" url="common/addPictureUrl"></ImageInput>-->
+<!--        </el-form-item>-->
 
         <el-form-item label="内容：" label-width="6rem;">
           <text-editor v-model="dynamicItem.content" placeholder="动态内容"></text-editor>
@@ -40,7 +40,7 @@
         <el-button @click="save()">提交</el-button>
       </div>
     </el-dialog>
-    <el-dialog :visible.sync="showDelete">
+    <el-dialog :visible.sync="showDelete" width="200px">
       确认是否删除
       <div slot="footer">
         <el-button @click="cloneDeleteMode()">取消</el-button>
@@ -92,7 +92,7 @@ export default {
       this.addDialog = false;
     },
     editDynamic(item) {
-      this.dynamicItem = item;
+      this.dynamicItem = JSON.parse(JSON.stringify(item));
       this.addDialog = true;
     },
 

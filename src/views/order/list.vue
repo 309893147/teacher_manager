@@ -2,12 +2,12 @@
   <div>
     <List :header="tableHeader" @page="getBanner" :data="tableData" :page="pageInfo">
       <div slot="filters">
-        <el-input v-model="filter.name" placeholder="订单编号" style="width:auto" clearable></el-input>
+        <el-input v-model="filter.userName" placeholder="用户名" style="width:auto" clearable></el-input>
         <el-select v-model="filter.orderType">
           <el-option label="全部状态" :value="null"></el-option>
-          <el-option label="支付中" :value="0"></el-option>
-          <el-option label="已失效" :value="1"></el-option>
-          <el-option label="已支付" :value="2"></el-option>
+          <el-option label="待支付" :value="0"></el-option>
+          <el-option label="已支付" :value="1"></el-option>
+          <el-option label="已关闭" :value="2"></el-option>
         </el-select>
 
         <el-button type="primary" @click="getBanner(1,10)">筛选</el-button>
@@ -74,7 +74,7 @@ export default {
   },
   methods: {
     openDividendMode(item) {
-      this.currentItem = item;
+      this.currentItem = JSON.parse(JSON.stringify(item));
       this.showDividend = true;
     },
     cloneDividendMode() {
@@ -91,8 +91,9 @@ export default {
       vm.currentItem[key] = value;
       this.ax.post("dividend/add", vm.currentItem).then(it => {
         vm.success("分红成功");
-          // this.getBanner();
-       cloneDividendMode();
+        this.showDividend = false;
+          this.getBanner();
+       // cloneDividendMode();
 
       });
     },
@@ -135,9 +136,9 @@ export default {
   computed: {
     tableData() {
       let orderTypes = {
-        0: "支付中",
-        1: "已失效",
-        2: "已支付"
+        0: "待支付",
+        1: "已支付",
+        2: "已关闭"
       };
       return this.listData.map(it => {
         it.orderType = orderTypes[it.orderType];
@@ -146,10 +147,6 @@ export default {
     },
     tableHeader() {
       return [
-        {
-          key: "id",
-          name: "发布项目编号"
-        },
         {
           key: "userName",
           name: "用户名"
@@ -172,15 +169,7 @@ export default {
           name: "订单金额"
         },
         {
-          key: "orderCode",
-          name: "订单编号"
-        },
-        {
-          key: "transactionId",
-          name: "微信订单编号"
-        },
-        {
-          key: "createTime",
+          key: "createDate",
           name: "下单时间"
         }
       ];

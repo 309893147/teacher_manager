@@ -9,46 +9,43 @@ module.exports = {
     // Paths
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
-    // proxyTable: {
-    //   '/api': {
-    //     target: 'http://192.168.10.196:8088/',
-    //     changeOrigin: true
-    //   },
-    //   '/manager': {
-    //     target: 'http://192.168.10.196:8088/',
-    //     changeOrigin: true
-    //   },
-    //   '/media':{
-    //     target: 'http://192.168.10.196:8088/',
-    //     changeOrigin: true
-    //   },
-    //   '/js' :{
-    //     target: 'http://192.168.10.196:8088/',
-    //     changeOrigin: true
-    //   },
-    //   '/' :{
-    //     target: 'https://restapi.amap.com/v3/geocode/geo',
-    //     changeOrigin: true
-    //   }
-    // },
     proxyTable: {
       '/api': {
-        target: 'http://yagu.demo.cq1080.com/',
+        target: 'http://192.168.43.43:8088/',
         changeOrigin: true
       },
-      '/manage': {
-        target: 'http://yagu.demo.cq1080.com/',
+      '/manager': {
+        target: 'localhost:8081/',
         changeOrigin: true
       },
       '/media':{
-        target: 'http://yagu.demo.cq1080.com/',
+        target: 'http://192.168.10.196:8088/',
         changeOrigin: true
       },
       '/js' :{
-        target: 'http://yagu.demo.cq1080.com/',
+        target: 'http://192.168.10.196:8088/',
         changeOrigin: true
-      }
+      },
+    
     },
+    // proxyTable: {
+    //   '/api': {
+    //     target: 'http://app.yagujinfu.com/',
+    //     changeOrigin: true
+    //   },
+    //   '/manage': {
+    //     target: 'http://app.yagujinfu.com/',
+    //     changeOrigin: true
+    //   },
+    //   '/media':{
+    //     target: 'http://app.yagujinfu.com/',
+    //     changeOrigin: true
+    //   },
+    //   '/js' :{
+    //     target: 'http://app.yagujinfu.com/',
+    //     changeOrigin: true
+    //   }
+    // },
     // Various Dev Server settings
     host: 'localhost', // can be overwritten by process.env.HOST
     port: 9528, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
@@ -95,7 +92,7 @@ module.exports = {
      * then assetsPublicPath should be set to "/bar/".
      * In most cases please use '/' !!!
      */
-    assetsPublicPath: '/manager/',
+    assetsPublicPath: '/manage/',
 
     /**
      * Source Maps

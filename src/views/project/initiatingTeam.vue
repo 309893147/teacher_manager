@@ -6,7 +6,16 @@
           <img v-bind:src="scope.row.url" alt style="max-width:10em" />
         </template>
       </el-table-column>
-      <div slot="top-actions">
+      <div slot="top-actions" style="display: flex;align-items: center;justify-content: flex-end">
+        <div style="display: flex;align-items: center;margin-right: 20px">
+          <p>是否显示在前台页面展示：</p>
+          <el-switch
+              @change="openOrClose"
+              v-model="teamStatusType"
+              active-color="#13ce66"
+              inactive-color="#ff4949">
+          </el-switch>
+        </div>
         <el-button type="primary" @click="addDialog=true">添加</el-button>
       </div>
 
@@ -68,7 +77,7 @@ export default {
     List,
     ImageInput
   },
-  props: ["publicProjectId"],
+  props: ["publicProjectId",'teamStatus','teamId','teamList'],
 
   data() {
     return {
@@ -80,11 +89,17 @@ export default {
       pageInfo: {},
       openDetailDialog: false,
       currentItem: {},
-      deleteList: ""
+      deleteList: "",
+      teamStatusType:'',
     };
   },
   created() {
     this.getBanner();
+    if(!this.teamStatus){
+      this.teamStatusType = true
+    } else {
+      this.teamStatusType = false
+    }
   },
   watch: {
     addDialog(val) {
@@ -95,13 +110,36 @@ export default {
     },
 
     publicProjectId: function(res) {
-      console.log(res);
       this.getBanner();
       //对项目id进行附值
       this.currentItem.publicProjectId = res;
     }
   },
   methods: {
+    openOrClose(){
+      if (!this.currentItem.id) {
+        let statusData ={
+          title: '发起团队',
+          type: 3,
+          pubProjectId: this.publicProjectId,
+          status: this.teamStatusType?0:1,
+        }
+        this.ax.post('/publicproject/save/pubprojectshow',statusData)
+            .then(res =>{
+              this.$message.success('修改成功')
+            })
+      } else {
+        let statusData ={
+          status: this.teamStatusType?0:1,
+          id: this.teamId,
+        }
+        this.ax.post('/publicproject/update/pubprojectshow',statusData)
+            .then(res =>{
+              this.$message.success('修改成功')
+            })
+      }
+
+    },
     openDeleteMode(item) {
       this.deleteList = item;
       this.showDelete = true;

@@ -28,23 +28,23 @@ export default {
         }
     },
     created(){
-        //this.policyName = this.$route.query.name
-        //this.title = this.$route.query.title
-       // this.getPolicy()
+        this.policyName = this.$route.query.name
+        this.title = this.$route.query.title
+       this.getPolicy()
     },
     watch:{
         $route(){
             this.policyName = this.$route.name
-           // this.getPolicy()
+           this.getPolicy()
         }
     },
     methods: {
-        // getPolicy(){
-        //   let vm = this
-        //   this.ax.get("web?name="+this.policyName).then(data =>{
-        //       vm.content = data && data.content || ""
-        //   })
-        // },
+        getPolicy(){
+          let vm = this
+          this.ax.get("web?name="+this.policyName).then(data =>{
+              vm.content = data && data.content || ""
+          })
+        },
         updateBrandStory(){
             let vm = this
             vm.loading = true

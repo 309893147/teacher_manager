@@ -2,7 +2,7 @@
   <div>
     <List :header="tableHeader" :data="tableData" @page="getBanner" :page="pageInfo" width="900">
       <div slot="top-actions">
-        <el-button type="primary" @click="addDialog=true">添加</el-button>
+        <el-button type="primary" @click="addShow()">添加</el-button>
       </div>
 
       <el-table-column slot="actions" label="操作" width="300">
@@ -18,7 +18,7 @@
         </template>
       </el-table-column>
     </List>
-    <el-dialog :visible.sync="addDialog" :close-on-click-modal="false"	 >
+    <el-dialog :visible.sync="addDialog" :close-on-click-modal="false"	width="400px" >
       <el-form>
         <el-form-item label="类型">
           <el-input v-model="newItem.name" placeholder="名称"></el-input>
@@ -29,7 +29,7 @@
         <el-button @click="addType" type="primary" :loading="loading">保存</el-button>
       </div>
     </el-dialog>
-    <el-dialog :visible.sync="showDelete">
+    <el-dialog :visible.sync="showDelete" width="200px">
       确认是否删除
       <div slot="footer">
         <el-button @click="cloneDeleteMode()">取消</el-button>
@@ -55,7 +55,8 @@ export default {
       listData: [],
       pageInfo: {},
       openDetailDialog: false,
-      newItem: {}
+      newItem: {},
+      editShow: false
     };
   },
   created() {
@@ -63,37 +64,62 @@ export default {
   },
 
   methods: {
+    addShow(){
+      this.editShow= false
+      this.addDialog = true;
+    },
     openDeleteMode(item) {
-      this.deleteList = item;
+      this.deleteList = JSON.parse(JSON.stringify(item));
       this.showDelete = true;
     },
     cloneDeleteMode() {
       this.showDelete = false;
     },
     editType(item) {
+      this.editShow= true
       //   Object.assign(this.newItem, item);
-      this.newItem = item;
+      this.newItem = JSON.parse(JSON.stringify(item));
       this.addDialog = true;
     },
     addType() {
       let vm = this;
-      vm.ax
-        .post("/investment/save", vm.newItem)
-        .then(it => {
-          vm.getBanner();
-          vm.cloneInput();
-          vm.newItem = {};
-          vm.listData.forEach(item => {
-            if (item.id == it.id) {
-              Object.assign(item, it);
-            }
-            return true;
-          });
-          vm.$message.success("操作成功");
-        })
-        .catch(it => {
-          vm.error(it);
-        });
+      if(vm.editShow){
+        vm.ax
+            .post("/investment/update", vm.newItem)
+            .then(it => {
+              vm.getBanner();
+              vm.cloneInput();
+              vm.newItem = {};
+              vm.listData.forEach(item => {
+                if (item.id == it.id) {
+                  Object.assign(item, it);
+                }
+                return true;
+              });
+              vm.$message.success("操作成功");
+            })
+            .catch(it => {
+              vm.error(it);
+            });
+      } else {
+        vm.ax
+            .post("/investment/save", vm.newItem)
+            .then(it => {
+              vm.getBanner();
+              vm.cloneInput();
+              vm.newItem = {};
+              vm.listData.forEach(item => {
+                if (item.id == it.id) {
+                  Object.assign(item, it);
+                }
+                return true;
+              });
+              vm.$message.success("操作成功");
+            })
+            .catch(it => {
+              vm.error(it);
+            });
+      }
     },
     deleteType() {
       let vm = this;

@@ -41,7 +41,7 @@
         <el-button @click="saveRecommendStroy">提交</el-button>
       </div>
     </el-dialog>
-    <el-dialog :visible.sync="showDelete" width="20%">
+    <el-dialog :visible.sync="showDelete" width="200px">
       确认是否删除
       <div slot="footer">
         <el-button @click="cloneDeleteMode()">取消</el-button>
@@ -108,8 +108,8 @@ export default {
     deleteTeam() {
       let vm = this;
       console.log(this.deleteList.id);
-      let data={
-        id: this.deleteList.id
+      let data= {
+        id : this.deleteList.id
       }
       vm.ax
         .post("/webpage/delete", data)
@@ -127,8 +127,8 @@ export default {
 
     saveRecommendStroy() {
       let vm = this;
-      //设置推荐故事 name
-      vm.activityItem.name = "popular_events";
+      //设置运营报告 name
+      vm.activityItem.name = "operation_report";
       if (!vm.activityItem.id) {
         vm.ax
           .post("/webpage/save", vm.activityItem)
@@ -164,7 +164,7 @@ export default {
           params: {
             "page.currentPage": page,
             "page.pageSize": size,
-            name: "popular_events",
+            name: "operation_report",
             ...this.filter
           }
         })

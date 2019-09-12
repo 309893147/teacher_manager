@@ -1,21 +1,6 @@
 import Vue from "vue";
 
 /**
- * @Description: 判断当前页面的历史记录是不是小于等于1，如果小于等于1，说明这个页面没有可以返回的上一页，如果没有可以返回的上一页，就给地址栏加上一个goindex=true的参数
- * @author Wish
- * @date 2019/8/19
-*/
-Vue.prototype.$setgoindex = () =>{
-  if (window.history.length <= 1) {
-    if (location.href.indexOf('?') === -1) {
-      window.location.href = location.href + '?goindex=true'
-    } else if (location.href.indexOf('?') !== -1 && location.href.indexOf('goindex') === -1) {
-      window.location.href = location.href + '&goindex=true'
-    }
-  }
-}
-
-/**
  * @Description: 隐藏手机号中间四位 例: 123****1234
  * @author Wish
  * @date 2019/8/26
@@ -39,8 +24,7 @@ Vue.prototype.$GetTelPhoneData = (data) =>{
  * @date 2019/8/27
 */
 Vue.prototype.$GetTimeData = (data) =>{
-  let str = data.substring(0, 10);
-  return str;
+  return data.substring(0, 10);
 };
 
 /**
@@ -57,3 +41,29 @@ Vue.prototype.$GetFileName = (data) =>{
   }
 };
 
+/**
+ * @Description: 时间戳转换
+ * @author Wish
+ * @date 2019/9/6
+*/
+Vue.prototype.$GetTime = (data) =>{
+  if(data){
+    let date = new Date(data);
+
+    let year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+    let hour = date.getHours();
+    let minute = date.getMinutes();
+    let second = date.getSeconds();
+    return year
+        + "-" + (month < 10 ? "0" + month : month)
+        + "-" + (day < 10 ? "0" + day : day)
+        + " " + (hour < 10 ? "0" + hour : hour)
+        + ":" + (minute < 10 ? "0" + minute : minute)
+        + ":" + (second < 10 ? "0" + second : second);
+  }else {
+    return data
+  }
+
+}

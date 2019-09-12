@@ -7,18 +7,18 @@
       :page="pageInfo"
       :disableAction="true"
     >
-      <el-table-column label="收入证明" slot="before">
+      <el-table-column label="身份证正面" slot="before">
         <template slot-scope="scope">
-          <img v-bind:src="scope.row.proofIncomeUrl" alt style="max-width:10em" />
+          <img v-bind:src="scope.row.frontUrl" alt style="max-width:10em" />
         </template>
       </el-table-column>
-      <el-table-column label="资产证明" slot="before">
+      <el-table-column label="身份证反面" slot="before">
         <template slot-scope="scope">
-          <img v-bind:src="scope.row.proofAssetsUrl" alt style="max-width:10em" />
+          <img v-bind:src="scope.row.backUrl" alt style="max-width:10em" />
         </template>
       </el-table-column>
       <div slot="filters">
-        <el-select v-model="filter.investorAuthType">
+        <el-select v-model="filter.type">
           <el-option label="全部状态" :value="null"></el-option>
           <el-option label="未认证" :value="0"></el-option>
           <el-option label="认证中" :value="1"></el-option>
@@ -38,7 +38,7 @@
     </List>
 
     <el-dialog title="认证状态" :visible.sync="dialogVisible" width="30%">
-      <el-select v-model="currentItem.investorAuthType">
+      <el-select v-model="currentItem.type">
         <el-option label="认证成功" :value="2"></el-option>
         <el-option label="认证失败" :value="3"></el-option>
       </el-select>
@@ -63,7 +63,7 @@ export default {
       page: 0,
       outerVisible: false,
       filter: {
-        investorAuthType: null
+        type: null
       },
       pageInfo: {}
     }
@@ -73,35 +73,30 @@ export default {
   },
   computed: {
     tableData() {
-      let investorAuthType = {
+      let type = {
         0: "未认证",
         1: "认证中",
         2: "认证成功",
         3: "认证失败"
       };
       return this.list.map(it => {
-        it.investorAuthType = investorAuthType[it.investorAuthType];
+        it.type = type[it.type];
         return it;
       });
     },
     tableHeader() {
       return [
         {
-          key: "userName",
-          name: "用户名"
+          key: "industry",
+          name: "所属行业"
         },
         {
-          key: "remarks",
-          name: "备注"
+          key: "type",
+          name: "认证状态"
         },
-
         {
           key: "createDate",
-          name: "提交时间"
-        },
-        {
-          key: "investorAuthType",
-          name: "认证状态"
+          name: "创建时间"
         }
       ];
     }
@@ -114,12 +109,16 @@ export default {
     saveEdit() {
       let vm = this;
       vm.dialogVisible = false;
-      let item = vm.currentItem;
+      console.log(this.currentItem);
+      let data ={
+        userId: this.currentItem.userId,
+        id:  this.currentItem.id,
+        type: String(this.currentItem.type)
+      }
 
       this.ax
-        .post("user/investorAuth/edit", item)
+        .post("/user/update/type", data)
         .then(it => {
-          console.log(it);
           // vm.listData.forEach(item => {
           //   if (item.id == it.id) {
           //     Object.assign(item, it);
@@ -132,7 +131,7 @@ export default {
     },
     getList(page,size) {
       let vm = this;
-      this.ax("/user/investorAuth/list", {
+      this.ax("/user/advancedauth/list", {
         params: {
           "page.currentPage":  page > 0 ? page :1,
           "page.pageSize": size,

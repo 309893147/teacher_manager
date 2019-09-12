@@ -22,7 +22,7 @@
           </el-form-item>
 
           <el-form-item label="微信号：" label-width="6rem;">
-            <el-input v-model="currentItem.weChatNumber" placeholder="请输入准确地址,精确到省市"></el-input>
+            <el-input v-model="currentItem.weChatNumber" placeholder="请输入微信账号"></el-input>
           </el-form-item>
 
           <el-form-item label="城市：" label-width="6rem;">
@@ -55,18 +55,21 @@
           </el-form-item>
 
           <el-form-item label="地理位置：" label-width="6rem;">
-            <el-input v-model="currentItem.location" placeholder="请输入准确地址,精确到省市"></el-input>
+            <el-input v-model="location" @focus="openMap()" placeholder="请输入准确地址,精确到省市"></el-input>
           </el-form-item>
+
+          <LocationPicker :value="mapValue" :show="mapShow" @input="mapValueInput" @close="closeMap" ref="mapLocation"></LocationPicker>
+
 
           <el-form-item label="项目周边：" label-width="6rem;">
             <el-input v-model="currentItem.aroundProject" placeholder="请输入准确地址,精确到省市"></el-input>
           </el-form-item>
 
-          <el-form-item label="认购结束时间: " label-width="6rem;">
+          <el-form-item label="结束时间: " label-width="6rem;">
             <el-date-picker
               v-model="currentItem.subscriptionEndTime"
               type="datetime"
-              placeholder="认购结束时间"
+              placeholder="结束时间"
               default-time="00:00:00"
               value-format="yyyy-MM-dd HH:mm:ss"
             ></el-date-picker>
@@ -102,6 +105,13 @@
               <el-option label="是" :value="1"></el-option>
             </el-select>
           </el-form-item>
+
+          <el-form-item label="是否最新推荐：" label-width="6rem;">
+            <el-select v-model="currentItem.freshRecommend" placeholder="请选择">
+              <el-option label="不是" :value="0"></el-option>
+              <el-option label="是" :value="1"></el-option>
+            </el-select>
+          </el-form-item>
           <div>
             <el-button type="primary" @click="addProject">保存</el-button>
           </div>
@@ -113,8 +123,16 @@
           <el-form>
             <text-editor v-model="storyItem.brandStory"></text-editor>
 
-            <div class="saveBtn">
+            <div class="saveBtn" style="display: flex;align-items: center">
               <el-button type="primary" @click="updateBrandStory">保存</el-button>
+              <div style="display: flex;align-items: center;margin-left: 20px">
+                <p>是否显示在前台页面展示：</p>
+                <el-switch
+                    v-model="brandStoryStatus"
+                    active-color="#13ce66"
+                    inactive-color="#ff4949">
+                </el-switch>
+              </div>
             </div>
           </el-form>
         </template>
@@ -124,8 +142,16 @@
         <template v-if="activeName == 'projectDetail'">
           <el-form>
             <text-editor v-model="detailItem.projectDetail"></text-editor>
-            <div class="saveBtn">
+            <div class="saveBtn" style="display: flex;align-items: center">
               <el-button type="primary" @click="updatePublicDetail">保存</el-button>
+              <div style="display: flex;align-items: center;margin-left: 20px">
+                <p>是否显示在前台页面展示：</p>
+                <el-switch
+                    v-model="projectStatus"
+                    active-color="#13ce66"
+                    inactive-color="#ff4949">
+                </el-switch>
+              </div>
             </div>
           </el-form>
         </template>
@@ -136,11 +162,11 @@
       </el-tab-pane>
 
       <el-tab-pane name="initTeam" tab-click label="发起团队">
-        <TeamList :publicProjectId="publicProjectId"></TeamList>
+        <TeamList :teamStatus="teamStatus" :teamId="teamId" :publicProjectId="publicProjectId"></TeamList>
       </el-tab-pane>
 
       <el-tab-pane name="information" label="信息披露">
-        <InformationList :publicProjectId="publicProjectId"></InformationList>
+        <InformationList :infoStatus="infoStatus" :infoId="infoId" :publicProjectId="publicProjectId"></InformationList>
       </el-tab-pane>
 
       <el-tab-pane name="program" label="投资方案">
@@ -186,7 +212,8 @@ export default {
     PictureList,
     ProgramList,
     InformationList,
-    citys
+    citys,
+    'LocationPicker':() => import('@/components/LocationPicker')
   },
   data() {
     return {
@@ -216,15 +243,71 @@ export default {
       //下拉选择框的项目类型表单
       typeList: {},
       addressUrl: null,
-      locationItem: {}
+      locationItem: {},
+
+      mapShow: false,
+      location: '',
+
+      mapValue:{
+        lat: '29.5647100000',
+        lng: '106.5507300000'
+      },
+
+      brandStoryStatus: '', // 品牌故事
+      brandStoryId: '',  // id
+      projectStatus: '', // 项目详情状态
+      projectStatusId: '',
+      teamStatus: '', // 发起团队
+      teamId: '',
+      infoStatus: '', // 信息披露
+      infoId: '',
     };
   },
 
   created() {
     this.getInvestMentType();
     this.getProvinceData();
+    this.getShowType()
   },
   methods: {
+    getShowType(){
+      let data={
+        pubProjectId: this.publicProjectId
+      }
+      this.ax.get('/publicproject/getlist',{params: data})
+          .then(res =>{
+            res.dataList.map(item =>{
+              if(item.type === 1){ // 品牌故事
+                this.brandStoryId = item.id
+                this.brandStoryStatus = item.status === 0? true: false
+              } else if(item.type === 2){ // 项目详情
+                this.projectStatusId = item.id
+                this.projectStatus = item.status === 0? true: false
+              } else if(item.type === 3){ // 发起团队
+                this.teamId = item.id
+                this.teamStatus = item.status === 0? true: false
+              } else if(item.type === 4){ // 信息披露
+                this.infoId = item.id
+                this.infoStatus = item.status === 0? true: false
+              }
+            })
+          })
+    },
+    // 打开地图
+    openMap(){
+      this.mapShow = true
+    },
+    mapValueInput(val){
+      let data = JSON.parse(JSON.stringify(val))
+      this.location = data.lat + ',' + data.lng
+      this.mapShow = false
+    },
+    closeMap(){
+      this.mapShow = false
+    },
+
+
+
     getProvinceData() {
       this.$axios.get("/static/mock/city/city.json").then(res => {
         this.provinceData = res.data;
@@ -251,7 +334,6 @@ export default {
         }
       });
 
-      console.log(this.districtData);
     },
 
     getInvestMentType() {
@@ -262,7 +344,6 @@ export default {
           vm.typeList = it.dataList;
         })
         .catch(err => {
-          console.log(err); // 这里catch到错误timeout
         });
     },
 
@@ -278,12 +359,16 @@ export default {
     },
 
     updateBrandStory() {
-      let vm = this;
-      let msg = null;
-      if (msg !== null) {
-        this.error(msg);
-        return;
+      let statusData ={
+        status: this.brandStoryStatus?0:1,
+        id: this.brandStoryId,
       }
+      this.ax.post('/publicproject/save/pubprojectshow',statusData)
+          .then(res =>{
+
+          })
+
+      let vm = this;
       vm.ax
         .post("/publicproject/updateBrandStory", vm.storyItem)
         .then(it => {
@@ -296,12 +381,15 @@ export default {
     },
 
     updatePublicDetail() {
-      let vm = this;
-      let msg = null;
-      if (msg !== null) {
-        this.error(msg);
-        return;
+      let statusData ={
+        status: this.projectStatus?0:1,
+        id: this.projectStatusId,
       }
+      this.ax.post('/publicproject/save/pubprojectshow',statusData)
+          .then(res =>{
+
+          })
+      let vm = this;
       vm.ax
         .post("/publicproject/updatePublicDetail", vm.detailItem)
         .then(it => {
@@ -313,79 +401,77 @@ export default {
     },
 
     addProject() {
-      let vm = this;
-
-      let msg = null;
-      if (msg !== null) {
-        this.error(msg);
-        return;
+      if(this.province && this.city && this.district){
+        this.currentItem["location"] = this.province+this.city+this.district;
       }
+      if(this.location){
+        this.currentItem['longitude'] = this.mapValue.lng
+        this.currentItem['latitude'] = this.mapValue.lat
+      }
+
+      let vm = this;
       if (!this.validProject(vm.currentItem)) {
         return;
       }
+      // let data={
+      //   aroundProject: vm.currentItem.aroundProject,
+      //   investmentSubject: vm.currentItem.investmentSubject,
+      //   investmentTypeId: vm.currentItem.investmentTypeId,
+      //   location: vm.currentItem.location,
+      //   projectDescription: vm.currentItem.projectDescription,
+      //   projectName: vm.currentItem.projectName,
+      //   projectStatus: vm.currentItem.projectStatus,
+      //   simulation: vm.currentItem.simulation,
+      //   startingAmount: vm.currentItem.startingAmount,
+      //   subscriptionEndTime: vm.currentItem.subscriptionEndTime,
+      //   targetAmount: vm.currentItem.targetAmount,
+      //   weChatNumber: vm.currentItem.weChatNumber
+      // }
 
-      let url =
-        "https://restapi.amap.com/v3/geocode/geo?key=a8f03b157ea2eb6c2c40d10041cf48f7&address=" +
-        vm.currentItem.location;
-      this.$axios
-        .get(url)
-        .then(res => {
-          let geoLocation = res.data.geocodes[0].location.split(",");
-          let lon = geoLocation[0];
-          let lat = geoLocation[1];
-          vm.currentItem.latitude = lat;
-          vm.currentItem.longitude = lon;
-
-          vm.currentItem.detailedLocation = vm.province
-            .concat(vm.city)
-            .concat(vm.district);
-          vm.ax
-            .post("/publicproject/add", vm.currentItem)
-            .then(it => {
-              vm.publicProjectId = it;
-              vm.success("添加成功");
-            })
-            .catch(it => {
-              vm.error(it);
-            });
-        })
-        .catch((err = {}));
+      vm.ax.post('/publicproject/add', vm.currentItem)
+          .then(it => {
+            vm.publicProjectId = it;
+            vm.success("添加成功");
+          })
+          .catch(it => {
+            vm.error(it);
+          });
     },
     validProject(currentItem) {
       let msg = null;
-      if (!currentItem.projectName) {
-        msg = "请输入项目名称";
-      }
-      if (!currentItem.projectDescription) {
-        msg = "请输入项目简介";
-      }
+    //   if (!currentItem.projectName) {
+    //     msg = "请输入项目名称";
+    //   }
+    //   if (!currentItem.projectDescription) {
+    //     msg = "请输入项目简介";
+    //   }
       if (!currentItem.targetAmount) {
         msg = "请输入目标金额";
       }
       if (!currentItem.startingAmount) {
         msg = "请输入起投金额";
       }
-      if (!currentItem.weChatNumber) {
-        msg = "请输入微信号";
-      }
-      if (!currentItem.location) {
-        msg = "请输入地理位置";
-      }
-      // if (!currentItem.detailedLocation) {
-      //   msg = "请选择项目状态";
-      // }
-      // if (!currentItem.projectStatus) {
-      //   msg = "请选择项目状态";
-      // }
-      // if (!currentItem.investmentSubject) {
-      //   msg = "请选择投资主体";
-      // }
-      // if (!currentItem.investmentTypeId) {
-      //   msg = "请选择投资类型";
-      // }
-      // if (!currentItem.investmentTypeId) {
-      //   msg = "请选择项目是否为模拟项目";
-      // }
+    //   if (!currentItem.weChatNumber) {
+    //     msg = "请输入微信号";
+    //   }
+    //   if (!currentItem.location) {
+    //     msg = "请输入地理位置";
+    //   }
+    //   // if (!currentItem.detailedLocation) {
+    //   //   msg = "请选择项目状态";
+    //   // }
+    //   // if (!currentItem.projectStatus) {
+    //   //   msg = "请选择项目状态";
+    //   // }
+    //   // if (!currentItem.investmentSubject) {
+    //   //   msg = "请选择投资主体";
+    //   // }
+    //   // if (!currentItem.investmentTypeId) {
+    //   //   msg = "请选择投资类型";
+    //   // }
+    //   // if (!currentItem.investmentTypeId) {
+    //   //   msg = "请选择项目是否为模拟项目";
+    //   // }
       if (msg) {
         this.error(msg);
         return false;
