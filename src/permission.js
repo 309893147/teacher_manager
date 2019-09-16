@@ -31,7 +31,7 @@ function  inList(list,item){
 }
 function navigation(to,next){
   let permission  = store.getters.permission
-  if(store.getters.role.length >0){
+  if(store.getters.role === 'SUPER_MANAGER'){
     // console.log("next")
     next()
     return
@@ -56,18 +56,9 @@ router.beforeEach((to, from, next) => {
       NProgress.done() // if current page is dashboard will not trigger	afterEach hook, so manually handle it
     } else {
       navigation(to,next)
-      if(store.getters.role.length === 0) {
-        store.dispatch('GetInfo').then(res => { // 拉取用户信息
-          const roleList = [];
-          res.menuDtos.map(res =>{
-            roleList.push(res.menuName)
-          })
-          const roles = roleList;
-          // store.dispatch('GenerateRoutes', { roles }).then(() => { // 生成可访问的路由表
-          //   router.addRoutes(store.getters.addRouters) // 动态添加可访问路由表
-          //   next({ ...to, replace: true }) // hack方法 确保addRoutes已完成 ,set the replace: true so the navigation will not leave a history record
-          // })
-          navigation(to,next)
+      if(store.getters.role === '') {
+          store.dispatch('GetInfo').then(res => { // 拉取用户信息
+            navigation(to,next)
         }).catch((err) => {
           store.dispatch('FedLogOut').then(() => {
             Message.error(err || 'Verification failed, please login again')

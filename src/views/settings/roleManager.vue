@@ -28,7 +28,6 @@
         </el-table-column>
         <el-table-column
             prop="remark"
-            show-overflow-tooltip
             label="角色描述">
         </el-table-column>
         <el-table-column
@@ -119,22 +118,24 @@
       // 获取角色列表
       getRoleData(){
         this.loading = true;
-        this.ax.get('role/listuser')
+        this.$axios.get('/manager/role/listuser')
             .then(res =>{
-             
+              if(res.data.status === 200){
                 this.loading = false;
-                this.roleData = res
-            
+                this.roleData = res.data.body
+              }
             })
       },
 
       // 获取权限列表
       getMenuList(){
         this.treeLoading = true;
-        this.ax.get('menu/tree')
+        this.$axios.get('manager/menu/tree')
             .then(res =>{
+              if(res.data.status === 200){
                 this.treeLoading = false;
-                this.menuList = res.childs;
+                this.menuList = res.data.body.childs;
+              }
             })
       },
 
@@ -144,18 +145,17 @@
         let data={
           roleName: this.searchInput
         };
-        this.ax.get('role/listuser',{params:data})
+        this.$axios.get('/manager/role/listuser',{params:data})
             .then(res =>{
-
+              if(res.data.status === 200){
                 this.loading = false;
-                this.roleData = res
-            
+                this.roleData = res.data.body
+              }
             })
       },
 
       // 刷新
       refresh(){
-        this.menuIds = [];
         this.searchInput = '';
         this.getRoleData();
         this.getMenuList()
@@ -163,7 +163,6 @@
 
       // 添加
       addRole(){
-        this.menuIds = [];
         this.showAddForm = true;
         this.roleName = '';
         this.roleDesc = '';
@@ -180,12 +179,14 @@
           let data = {
             roleIds: String(this.deleteId)
           };
-          this.ax.post('role/delete',data)
+          this.$axios.post('/manager/role/delete',data)
               .then(res =>{
-              
+                if(res.data.status === 204){
                   this.$message.success('删除成功');
                   this.getRoleData()
-               
+                }else {
+                  this.$message.error('删除失败,请稍后重试')
+                }
               })
         }).catch(() => {
 
@@ -201,8 +202,6 @@
 
       // 修改
       editRoleList(val){
-        this.menuIds = [];
-        this.$refs.tree.setCheckedNodes([]);
         this.showAddForm = false;
         this.roleId = val.roleId;
         this.roleName = val.roleName;
@@ -220,21 +219,18 @@
           let data ={
             roleIds: val.roleId
           };
-          this.ax.post('role/delete',data)
+          this.$axios.post('/manager/role/delete',data)
               .then(res =>{
-            
+                if(res.data.status === 204){
                   this.getRoleData()
                   this.$message.success('删除成功')
-
-                  this.menuIds = [];
-                  this.showAddForm = true;
-                  this.roleName = '';
-                  this.roleDesc = '';
-                  this.$refs.tree.setCheckedNodes([]);
+                }else {
+                  this.$message.error('删除失败,请稍后重试')
+                }
               })
         }).catch(() => {
 
-        });
+        });;
       },
 
       // 点击列表获取data
@@ -259,7 +255,6 @@
 
       // 保存
       submitBtn(){
-        this.loading = true
         console.log(String(this.menuIds));
         if(this.showAddForm){
           let data = {
@@ -267,24 +262,19 @@
             remark:this.roleDesc,
             menuIds: String(this.menuIds)
           };
-            if(this.roleName && this.roleDesc && String(this.menuIds)){
-              this.ax.post('role/add',data)
-                  .then(res =>{
-          
-                      this.getRoleData();
-                      this.$message.success('添加成功')
-                      this.roleName = '';
-                      this.roleDesc = '';
-                      this.$refs.tree.setCheckedNodes([]);
-                      this.menuIds = [];
-                      this.loading = false
-                  })
-            } else {
-              this.$message.warning('信息不完整')
-            }
+          this.$axios.post('/manager/role/add',data)
+              .then(res =>{
+                if(res.data.status === 204){
+                  this.getRoleData();
+                  this.$message.success('添加成功')
+                  this.roleName = '';
+                  this.roleDesc = '';
+                  this.$refs.tree.setCheckedNodes([]);
 
-
-
+                }else {
+                  this.$message.warning('修改失败，请稍后重试')
+                }
+              })
         } else {
           let data = {
             roleId: this.roleId,
@@ -292,13 +282,14 @@
             remark:this.roleDesc,
             menuIds: String(this.menuIds)
           };
-          this.ax.post('role/update',data)
+          this.$axios.post('/manager/role/update',data)
               .then(res =>{
-            
+                if(res.data.status === 204){
                   this.getRoleData();
-                  this.menuIds = [];
-                  this.loading = false
                   this.$message.success('修改成功')
+                }else {
+                  this.$message.warning('修改失败，请稍后重试')
+                }
               })
         }
       },
@@ -338,7 +329,7 @@
     }
     .role_form{
       flex: 1;
-      margin-left: 5%;
+      margin-left: 10%;
       .title{
         display: flex;
         align-items: center;

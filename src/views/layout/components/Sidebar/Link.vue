@@ -30,7 +30,7 @@ export default {
           is: "a",
           href: url,
           target: "_blank",
-          rel: "noopener",
+          rel: "noopener"
         };
       }
       let to = { path: url };

@@ -22,7 +22,6 @@
       <div class="share_btn">
         <el-button @click="shareBtn()">搜索</el-button>
         <el-button @click="refresh()">刷新</el-button>
-        <el-button @click="resetPassword()" :disabled="deleteId.length< 1">重置密码</el-button>
         <el-button @click="addUserInfo">新增用户</el-button>
         <el-button type="danger" @click="removeRole()" :disabled="deleteId.length< 1">删除用户</el-button>
 
@@ -52,9 +51,12 @@
             label="用户名">
         </el-table-column>
         <el-table-column
-            prop="description"
-            show-overflow-tooltip
             label="描述">
+          <template slot-scope="scope">
+            <el-tooltip class="item" effect="dark" :content="scope.row.description" placement="top">
+              <p class="user_desc">{{scope.row.description}}</p>
+            </el-tooltip>
+          </template>
         </el-table-column>
         <el-table-column
             prop="mobile"
@@ -67,8 +69,7 @@
         <el-table-column
             label="状态">
           <template slot-scope="scope">
-            <el-tag v-if="scope.row.status === '0'" effect type="danger">锁定</el-tag>
-            <el-tag v-else effect type="success">有效</el-tag>
+            {{scope.row.status === '0' ? '锁定': '有效'}}
           </template>
         </el-table-column>
         <el-table-column
@@ -85,14 +86,6 @@
           </template>
         </el-table-column>
       </el-table>
-
-<!--      <div class="pagination">-->
-<!--        <el-pagination-->
-<!--            layout="prev, pager, next"-->
-<!--            :total="50">-->
-<!--        </el-pagination>-->
-<!--      </div>-->
-
     </div>
 
     <el-dialog
@@ -130,7 +123,6 @@
     </el-dialog>
 
     <el-dialog
-
         title="用户信息"
         :visible.sync="viewUserMessage">
       <div class="dialog_main">
@@ -183,23 +175,12 @@
     methods:{
       getUserData(){
         this.loading = true;
-        this.ax.get('user/managerList')
+        this.$axios.get('/manager/user/managerList')
             .then(res =>{
-       
+              if(res.data.status === 200){
                 this.loading = false;
-                this.userData = res.dataList
-              
-            })
-      },
-
-      // 重置密码
-      resetPassword(){
-        let data = {
-          userIds: String(this.deleteId)
-        };
-        this.ax.post('user/password/reset',data)
-            .then(res =>{
-                this.$message.success('所选用户密码已重置为：'+res)
+                this.userData = res.data.body.dataList
+              }
             })
       },
 
@@ -213,12 +194,14 @@
           let data = {
             userIds: String(this.deleteId)
           };
-          this.ax.post('user/delete',data)
+          this.$axios.post('/manager/user/delete',data)
               .then(res =>{
-               
+                if(res.data.status === 204){
                   this.$message.success('删除成功');
                   this.getUserData()
-        
+                }else {
+                  this.$message.error('删除失败,请稍后重试')
+                }
               })
         }).catch(() => {
 
@@ -234,10 +217,11 @@
 
       // 获取角色列表
       getUserRole(){
-        this.ax.get('role/listuser')
+        this.$axios.get('/manager/role/listuser')
             .then(res =>{
-                this.userRole = res
-      
+              if(res.data.status === 200){
+                this.userRole = res.data.body
+              }
             })
       },
 
@@ -249,12 +233,12 @@
           mobile: this.shareTelPhone,
           status: this.shareRole
         };
-        this.ax.get('user/managerList',{params:data})
+        this.$axios.get('/manager/user/managerList',{params:data})
             .then(res =>{
-        
+              if(res.data.status === 200){
                 this.loading = false;
-                this.userData =res.dataList
-              
+                this.userData = res.data.body.dataList
+              }
             })
       },
 
@@ -276,22 +260,26 @@
           roleId: String(this.selectRole),
         };
         if(this.updateOrAddUser){
-          this.ax.post('user/add',data)
+          this.$axios.post('/manager/user/add',data)
               .then(res =>{
-         
+                if(res.data.status === 204){
                   this.getUserData();
                   this.$message.success('创建成功');
                   this.editUserMessage= false;
-       
+                }else {
+                  this.$message.warning(res.data.message)
+                }
               })
         }else {
-          this.ax.post('user/update',data)
+          this.$axios.post('/manager/user/update',data)
               .then(res =>{
- 
+                if(res.data.status === 204){
                   this.getUserData();
                   this.$message.success('修改成功');
                   this.editUserMessage= false;
-          
+                }else {
+                  this.$message.warning(res.data.message)
+                }
               })
         }
       },
@@ -343,10 +331,14 @@
           let data={
             userIds: val.userId
           };
-          this.ax.post('user/delete',data)
+          this.$axios.post('/manager/user/delete',data)
               .then(res =>{
-                this.getUserData();
+                if(res.data.status){
+                  this.getUserData();
                   this.$message.success('删除成功')
+                }else {
+                  this.$message.warning('删除失败')
+                }
               });
         }).catch(() => {
 
@@ -397,10 +389,6 @@
         text-overflow: ellipsis;
         max-width: 300px;
       }
-    }
-
-    .pagination{
-      margin-top: 20px;
     }
 
     .edit_user_main{

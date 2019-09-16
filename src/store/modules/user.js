@@ -1,4 +1,4 @@
-import { login, logout, getInfo,getRoles } from '@/api/login'
+import { login, logout, getInfo } from '@/api/login'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 
 const user = {
@@ -44,12 +44,10 @@ const user = {
     //   setToken(userInfo.token)
     // },
     onLogin({ commit }, userInfo) {
-      let roleNameArr = [];
-
-      // commit("SET_ROLE",'SUPER_MANAGER')
-      commit("SET_ROLE",roleNameArr)
+      commit("SET_ROLE",'SUPER_MANAGER')
       commit("SET_NAME", userInfo.user.mobile)
       commit("SET_USERID", userInfo.user.userId)
+
       // console.log("set role"+userInfo.role)
       setToken(userInfo.token)
     },
@@ -57,16 +55,11 @@ const user = {
     GetInfo({ commit, state }) {
       return new Promise((resolve, reject) => {
         getInfo(state.token).then(response => {
-          const roleList = [];
-          response.menuDtos.map(res =>{
-            roleList.push(res.menuName)
-          })
           const data = response
-          // commit("SET_ROLE",['SUPER_MANAGER'])
-          // commit("SET_ROLE",'SUPER_MANAGER')
-          commit("SET_ROLE",roleList)
           commit('SET_NAME', data.mobile)
           commit('SET_USERID', data.userId)
+          // commit('SET_ROLE', data.role)
+          commit('SET_ROLE', 'SUPER_MANAGER')
           commit('SET_PERMISSION', data.permission)
           resolve(response)
         }).catch(error => {

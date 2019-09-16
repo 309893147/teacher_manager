@@ -11,38 +11,38 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       '/api': {
-        target: 'http://192.168.43.43:8088/',
-        changeOrigin: true
-      },
-      '/manager': {
         target: 'localhost:8081/',
         changeOrigin: true
       },
+      '/manager': {
+        target: 'http://192.168.43.43:8080/',
+        changeOrigin: true
+      },
       '/media':{
-        target: 'http://192.168.10.196:8088/',
+        target: 'localhost:8081/',
         changeOrigin: true
       },
       '/js' :{
-        target: 'http://192.168.10.196:8088/',
+        target: 'localhost:8081/',
         changeOrigin: true
       },
     
     },
     // proxyTable: {
     //   '/api': {
-    //     target: 'http://app.yagujinfu.com/',
+    //     target: 'http://yagu.demo.cq1080.com/',
     //     changeOrigin: true
     //   },
     //   '/manage': {
-    //     target: 'http://app.yagujinfu.com/',
+    //     target: 'http://yagu.demo.cq1080.com/',
     //     changeOrigin: true
     //   },
     //   '/media':{
-    //     target: 'http://app.yagujinfu.com/',
+    //     target: 'http://yagu.demo.cq1080.com/',
     //     changeOrigin: true
     //   },
     //   '/js' :{
-    //     target: 'http://app.yagujinfu.com/',
+    //     target: 'http://yagu.demo.cq1080.com/',
     //     changeOrigin: true
     //   }
     // },
@@ -92,7 +92,7 @@ module.exports = {
      * then assetsPublicPath should be set to "/bar/".
      * In most cases please use '/' !!!
      */
-    assetsPublicPath: '/manage/',
+    assetsPublicPath: '/manager/',
 
     /**
      * Source Maps

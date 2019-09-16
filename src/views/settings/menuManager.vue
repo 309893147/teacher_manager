@@ -32,7 +32,7 @@
       <div class="card_main">
         <div class="menu_input">
           <p class="card_name">上级ID：</p>
-          <el-input v-model="menuParentId" disabled></el-input>
+          <el-input v-model="menuParent" disabled></el-input>
         </div>
         <div class="menu_input">
           <p class="card_name">名称：</p>
@@ -97,7 +97,7 @@
         menuId: '', // 按钮ID
         menuParent: 0,  // 上级ID
         menuName: '', // 名称
-        menuType:0,  // 类型
+        menuType:'',  // 类型
         menuIcon:'',  // 图标
         menuUrl: '', // 地址
         menuPerms: '',  // 权限
@@ -117,35 +117,40 @@
     methods:{
       getMenuList(){
         this.loading = true;
-        this.ax.get('menu/tree')
+        this.$axios.get('manager/menu/tree')
             .then(res =>{
-                this.loading = false
-                this.menuList = res.childs
+              console.log(res);
+              if(res.data.status === 200){
+                this.loading = false;
+                this.menuList = res.data.body.childs
+              }
             })
       },
+
       // 搜索
       filterNode(value, data) {
         if (!value) return true;
         return data.title.indexOf(value) !== -1;
       },
+
       // 刷新按钮
       refresh(){
         this.getMenuList();
         this.addMenuType = true;
         this.menuParent = 0;
         this.menuName = '';
-        this.menuType = 0;
+        this.menuType = '';
         this.menuIcon = '';
         this.menuUrl = '';
         this.menuPerms = '';
         this.menuOrder = '';
-        this.checkList = []
       },
 
       // 添加列表
       addMenu(){
+        console.log(this.checkList.length);
         if(this.checkList.length === 1){
-          this.menuParent = String(this.checkList);
+          this.menuParent = this.menuParentId;
         }else if(this.checkList.length < 1){
           this.menuParent = 0;
         }else {
@@ -153,12 +158,11 @@
         }
         this.addMenuType = true;
         this.menuName = '';
-        this.menuType = 0;
+        this.menuType = '';
         this.menuIcon = '';
         this.menuUrl = '';
         this.menuPerms = '';
         this.menuOrder = '';
-        this.checkList = []
       },
 
       // 删除
@@ -171,23 +175,26 @@
           let data = {
             menuIds: String(this.checkList)
           };
-          this.ax.post('menu/delete',data)
+          this.$axios.post('/manager/menu/delete',data)
               .then(res =>{
+                console.log(res.status);
+                if(res.status === 200){
                   this.getMenuList()
                   this.$message.success('删除成功')
-                  this.checkList = []
+                }else {
+                  this.$message.warning('删除失败，请重试')
+                }
               })
         }).catch(() => {
 
-        });
+        });;
       },
 
       // 选择列表
       handleNodeClick(data, checked, indeterminate){
         if(checked){
-          console.log(this.checkList);
           this.checkList.push(data.data.menuId)
-          this.menuParentId = data.data.menuId
+          this.menuParentId = data.data.parentId
         }else if(!checked){
           for(let i = 0; i < this.checkList.length; i++) {
             if(this.checkList[i] === data.data.menuId) {
@@ -221,12 +228,14 @@
           urlType = 'edit';
           typeMessage = '修改成功'
         }
-        this.ax.post('menu/'+urlType,data)
+        this.$axios.post('/manager/menu/'+urlType,data)
             .then(res =>{
+              if(res.status === 200){
                 this.$message.success(typeMessage)
                 this.getMenuList()
-                this.checkList = []
-       
+              }else {
+                this.$message.warning('数据错误，请稍后重试')
+              }
             })
 
       },
@@ -242,7 +251,7 @@
         this.menuUrl = menuData.url;
         this.menuPerms = menuData.perms;
         this.menuOrder = menuData.orderNum;
-        this.menuParentId = menuData.menuId;
+        this.menuParent = parseInt(menuData.parentId);
       }
 
     }
