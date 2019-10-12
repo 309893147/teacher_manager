@@ -34,6 +34,7 @@ export const constantRouterMap = [
     redirect: '/system/info',
     name: 'settings',
     meta: { title: '设置', icon: 'system' },
+    // hidden: true,
     children: [
       // {
       //   path: 'settings',
@@ -53,24 +54,28 @@ export const constantRouterMap = [
       {
         path: 'deptManager',
         name: 'deptManager',
+        hidden: true,
         meta: { title: '部门管理', auth: true, super: true },
         component: () => import('@/views/settings/deptManager')
       },
       {
         path: 'menuManager',
         name: 'menuManager',
+        hidden: true,
         meta: { title: '菜单管理', auth: true, super: true },
         component: () => import('@/views/settings/menuManager')
       },
       {
         path: 'roleManager',
         name: 'roleManager',
+        hidden: true,
         meta: { title: '角色管理', auth: true, super: true },
         component: () => import('@/views/settings/roleManager')
       },
       {
         path: 'userManager',
         name: 'userManager',
+        hidden: true,
         meta: { title: '用户管理', auth: true, super: true },
         component: () => import('@/views/settings/userManager')
       },
@@ -108,28 +113,28 @@ export const constantRouterMap = [
   
     ]
   },
-  {
-    path: '/system',
-    component: Layout,
-    redirect: '/system/info',
-    name: 'settings',
-    meta: { title: '教师评教', icon: 'record' },
-    children: [
-      {
-        path: 'settings',
-        name: 'settings',
-        meta: { title: '查看评教结果', auth: true, super: true },
-        component: () => import('@/views/settings/settings')
-      },
-      {
-        path: 'settings',
-        name: 'settings',
-        meta: { title: '进入评教', auth: true, super: true },
-        component: () => import('@/views/settings/settings')
-      },
+  // {
+  //   path: '/system',
+  //   component: Layout,
+  //   redirect: '/system/info',
+  //   name: 'settings',
+  //   meta: { title: '教师评教', icon: 'record' },
+  //   children: [
+  //     {
+  //       path: 'settings',
+  //       name: 'settings',
+  //       meta: { title: '查看评教结果', auth: true, super: true },
+  //       component: () => import('@/views/settings/settings')
+  //     },
+  //     {
+  //       path: 'settings',
+  //       name: 'settings',
+  //       meta: { title: '进入评教', auth: true, super: true },
+  //       component: () => import('@/views/settings/settings')
+  //     },
   
-    ]
-  },
+  //   ]
+  // },
   {
     path: '/evaluation',
     component: Layout,
