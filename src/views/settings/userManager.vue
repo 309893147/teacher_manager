@@ -24,8 +24,12 @@
         <el-button @click="refresh()">刷新</el-button>
         <el-button @click="addUserInfo">新增用户</el-button>
         <el-button type="danger" @click="removeRole()" :disabled="deleteId.length< 1">删除用户</el-button>
-
+      <el-button @click="addDialog=true">导入</el-button>
+          <el-button>
+            <a href="/manager/user/excel">导出</a>
+          </el-button>
       </div>
+
 
     </div>
 
@@ -88,6 +92,36 @@
       </el-table>
     </div>
 
+ <el-dialog :visible.sync="addDialog" :close-on-click-modal="false">
+        <el-form>
+          <el-form-item label="文件上传">         
+         <el-upload
+            class="upload-demo"
+            ref="upload"
+            action="/manager/user/excel"
+            :on-preview="handlePreview"
+            :on-remove="handleRemove"
+            :on-success="updateSuccess"
+            :auto-upload="false"
+          >
+            <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+            <el-button
+              style="margin-left: 10px;"
+              size="small"
+              type="success"
+              @click="submitUpload"
+            >上传到服务器</el-button>
+             <div slot="tip" class="el-upload__tip">只能上传Excel文件</div>
+          </el-upload>
+          </el-form-item>
+        </el-form>
+
+        <div slot="footer">
+          <el-button @click="addDialog = false">关闭</el-button>
+        </div>
+      </el-dialog>
+
+
     <el-dialog
         :title="updateOrAddUser?'新建用户':'修改用户信息'"
         :visible.sync="editUserMessage">
@@ -147,6 +181,7 @@
       return {
         userData: [],
         loading: false,
+        addDialog: false,
 
         // 搜索
         shareName: '', // 用户名

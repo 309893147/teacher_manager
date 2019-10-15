@@ -9,7 +9,7 @@
         <el-table-column prop="username" label="姓名"></el-table-column>
         <el-table-column prop="mobile" label="电话"></el-table-column>
         <el-table-column prop="roleName" label="角色"></el-table-column>
-        <el-table-column prop="deptName" label="院系"></el-table-column>
+        <el-table-column prop="dName" label="院系"></el-table-column>
         <el-table-column prop="course" label="科目"></el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
@@ -34,7 +34,7 @@ export default {
       username:"",  //姓名
       mobile:"",  //电话
       roleName:"",  //角色
-      deptName:"",  //院系
+      dName:"",  //院系
       course:"",  //科目
 
       updateEvaluationMessage: false,   //修改题目提示
@@ -100,9 +100,10 @@ export default {
     
   },
   mounted() {
-    this.getTeacherData();
     
-    
+  },
+  activated(){
+    this.getTeacherData();   
   }
 };
 </script>

@@ -16,7 +16,7 @@ module.exports = {
       },
       '/manager': {
         target: 'http://192.168.43.43:8080/',
-        //target: 'http://192.168.155.2:8080/',
+        //target: 'http://192.168.174.1:8080/',
         //target: 'http://192.168.23.55:8080/',
 
 

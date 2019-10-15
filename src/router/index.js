@@ -33,8 +33,9 @@ export const constantRouterMap = [
     component: Layout,
     redirect: '/system/info',
     name: 'settings',
+    hidden: true,
     meta: { title: '设置', icon: 'system' },
-    // hidden: true,
+
     children: [
       // {
       //   path: 'settings',
@@ -42,7 +43,7 @@ export const constantRouterMap = [
       //   meta: { title: '系统设置', auth: true, super: true },
       //   component: () => import('@/views/settings/settings')
       // },
-  
+
 
       // {
       //   path: 'manager',
@@ -54,39 +55,33 @@ export const constantRouterMap = [
       {
         path: 'deptManager',
         name: 'deptManager',
-        hidden: true,
+        // hidden: true,
         meta: { title: '部门管理', auth: true, super: true },
         component: () => import('@/views/settings/deptManager')
       },
       {
         path: 'menuManager',
         name: 'menuManager',
-        hidden: true,
+        // hidden: true,
         meta: { title: '菜单管理', auth: true, super: true },
         component: () => import('@/views/settings/menuManager')
       },
       {
         path: 'roleManager',
         name: 'roleManager',
-        hidden: true,
+        // hidden: true,
         meta: { title: '角色管理', auth: true, super: true },
         component: () => import('@/views/settings/roleManager')
       },
       {
         path: 'userManager',
         name: 'userManager',
-        hidden: true,
+        // hidden: true,
         meta: { title: '用户管理', auth: true, super: true },
         component: () => import('@/views/settings/userManager')
       },
-      {
-        path: 'permissions',
-        hidden: true,
-        name: 'permission',
-        meta: { title: '设置权限', auth: true, super: true },
-        component: () => import('@/views/settings/permission')
-      },
      
+
     ]
   },
 
@@ -96,6 +91,7 @@ export const constantRouterMap = [
     redirect: '/teacher/info',
     name: 'teacherinfo',
     meta: { title: '个人信息', icon: 'user' },
+    hidden: true,
     children: [
       {
         path: 'teacherinfo',
@@ -106,11 +102,11 @@ export const constantRouterMap = [
       {
         path: 'settings',
         name: 'settings',
-        meta: { title: '修改密码', auth: true},
+        meta: { title: '修改密码', auth: true },
         component: () => import('@/views/settings/settings')
       }
-  
-  
+
+
     ]
   },
   // {
@@ -132,7 +128,7 @@ export const constantRouterMap = [
   //       meta: { title: '进入评教', auth: true, super: true },
   //       component: () => import('@/views/settings/settings')
   //     },
-  
+
   //   ]
   // },
   {
@@ -141,6 +137,7 @@ export const constantRouterMap = [
     redirect: '/evaluation/info',
     name: 'viewevaluation',
     meta: { title: '评教管理', icon: 'record' },
+    hidden: true,
     children: [
       {
         path: 'viewevaluation',
@@ -154,7 +151,14 @@ export const constantRouterMap = [
         meta: { title: '设置评教内容', auth: true, super: true },
         component: () => import('@/views/evaluation/setevaluation')
       },
-  
+       {
+        path: 'beginEvaluation',
+        name: 'beginEvaluation',
+        hidden: true,
+        meta: { title: '进入评教', auth: true, super: true },
+        component: () => import('@/views/evaluation/beginEvaluation')
+      },
+
     ]
   },
   {
@@ -163,6 +167,7 @@ export const constantRouterMap = [
     redirect: '/teachermanager/info',
     name: 'addteacher',
     meta: { title: '教师管理', icon: 'user' },
+    hidden: true,
     children: [
       {
         path: 'addteacher',
@@ -176,7 +181,7 @@ export const constantRouterMap = [
         meta: { title: '查看教师', auth: true, super: true },
         component: () => import('@/views/teachermanager/viewTeacher')
       },
-  
+
     ]
   },
   {
@@ -185,6 +190,7 @@ export const constantRouterMap = [
     redirect: '/studentmanager/info',
     name: 'addStudent',
     meta: { title: '学生管理', icon: 'user' },
+    hidden: true,
     children: [
       {
         path: 'addStudent',
@@ -198,7 +204,7 @@ export const constantRouterMap = [
         meta: { title: '查看学生', auth: true, super: true },
         component: () => import('@/views/studentmanager/viewStudent')
       },
-  
+
     ]
   },
   {
@@ -207,6 +213,7 @@ export const constantRouterMap = [
     redirect: '/coursemanager/info',
     name: 'CourseManager',
     meta: { title: '科目管理', icon: 'operator' },
+    hidden: true,
     children: [
       {
         path: 'CourseManager',
@@ -220,51 +227,107 @@ export const constantRouterMap = [
       //   meta: { title: '查看学生', auth: true, super: true },
       //   component: () => import('@/views/studentmanager/viewStudent')
       // },
-  
+
     ]
   },
-  
 
+  {
+    path: '/student',
+    component: Layout,
+    redirect: '/student/info',
+    name: 'myInfo',
+    meta: { title: '学生信息', icon: 'user' },
+    hidden: true,
+    children: [
+      {
+        path: 'myInfo',
+        name: 'myInfo',
+        meta: { title: '学生个人信息', auth: true, super: true },
+        component: () => import('@/views/student/studentInfo')
+      },
+      {
+        path: 'security',
+        name: 'security',
+        meta: { title: '安全设置', auth: true, super: true },
+        component: () => import('@/views/student/securitySetting')
+      },
+      {
+        path: 'addcourse',
+        name: 'addcourse',
+        meta: { title: '添加课程', auth: true, super: true },
+        component: () => import('@/views/student/addCourse')
+      },
+      {
+        path: 'myCourse',
+        name: 'myCourse',
+        meta: { title: '学生课程', auth: true, super: true },
+        component: () => import('@/views/student/studentCourse')
+      },
 
-  // {
-  //   path: "/user",
-  //   component: Layout,
-  //   meta: { title: '用户', icon: 'user' },
-  //   name: "user",
-  //   children: [
-  //     {
-  //       path: 'list',
-  //       name: 'userList',
-  //       meta: { title: '用户列表', auth: true },
-  //       component: () => import("@/views/user/userList"),
-  //     },
-  //     {
-  //       path: 'userDetail',
-  //       name: 'userDetail',
-  //       hidden: true,
-  //       meta: { title: '用户详情', auth: true },
-  //       component: () => import("@/views/user/userDetail"),
-  //     },
-   
-
-  //   ]
-  // },
-  
-  // {
-  //   path: '/extra',
-  //   name: 'extra',
-  //   component: Layout,
-  //   hidden: true,
-  //   meta: { title: '信息' },
-  //   children: [
-  //     {
-  //       path: 'addMediaText',
-  //       name: 'addMediaText',
-  //       meta: { title: '添加内容' },
-  //       component: () => import('@/views/common/addMediaText')
-  //     }
-  //   ],
-  // },
+    ]
+  },
+  {
+    path: '/teacher',
+    component: Layout,
+    redirect: '/teacher/info',
+    name: 'teacherMyInfo',
+    meta: { title: '教师信息', icon: 'user' },
+    hidden: true,
+    children: [
+      {
+        path: 'teacherMyInfo',
+        name: 'teacherMyInfo',
+        meta: { title: '教师个人信息', auth: true, super: true },
+        component: () => import('@/views/teacherinfo/teacherInfo')
+      },
+      {
+        path: 'teacherSecurity',
+        name: 'teacherSecurity',
+        meta: { title: '安全设置', auth: true, super: true },
+        component: () => import('@/views/student/securitySetting')
+      }
+    ]
+  },
+  {
+    path: '/student',
+    component: Layout,
+    // redirect: '/studentevaluation/info',
+    name: 'studentEvaluation',
+    hidden: true,
+    meta: { title: '学生评教', icon: 'operator' },
+    children: [
+      {
+        path: 'studentEvaluation',
+        name: 'studentEvaluation',
+        meta: { title: '学生评教', auth: true, super: true },
+        component: () => import('@/views/student/studentEvaluation')
+      },
+     
+    // { path: '/studentevaluation/evaluation', name: 'eva', component: Layout, component: () => import('@/views/evaluation/beginEvaluation'), hidden: true },
+    ]
+  },
+  {
+    path: '/teachervaluation',
+    component: Layout,
+    redirect: '/teachervaluation/info',
+    name: 'teachErvaluation',
+    hidden: true,
+    meta: { title: '教师评教', icon: 'operator' },
+    children: [
+      {
+        path: 'teachErvaluation',
+        name: 'teachErvaluation',
+        meta: { title: '给同行评教', auth: true, super: true },
+        component: () => import('@/views/teacherinfo/teachErvaluation')
+      },
+      {
+        path: 'teachErvaluationScore',
+        name: 'teachErvaluationScore',
+        meta: { title: '查看评教成绩', auth: true, super: true },
+        component: () => import('@/views/teacherinfo/teachErvaluationScore')
+      }
+    ]
+  },
   { path: '*', redirect: '/404', hidden: true }
 ]
 
